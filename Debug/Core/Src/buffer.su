@@ -6,9 +6,9 @@
 ../Core/Src/buffer.c:71:6:bufferClear	16	static
 ../Core/Src/buffer.c:79:9:bufferHasValues	16	static
 ../Core/Src/buffer.c:83:10:bufferPopValues	40	static
-../Core/Src/buffer.c:94:10:bufferGetSize	16	static
-../Core/Src/buffer.c:98:10:bufferGetFreeSize	16	static
-../Core/Src/buffer.c:102:10:bufferPeekValues	16	static
-../Core/Src/buffer.c:107:9:bufferToAnother	24	static
-../Core/Src/buffer.c:118:13:disableInt	16	static,ignoring_inline_asm
-../Core/Src/buffer.c:123:13:enableInt	16	static,ignoring_inline_asm
+../Core/Src/buffer.c:95:10:bufferGetSize	16	static
+../Core/Src/buffer.c:99:10:bufferGetFreeSize	16	static
+../Core/Src/buffer.c:103:10:bufferPeekValues	16	static
+../Core/Src/buffer.c:108:9:bufferToAnother	24	static
+../Core/Src/buffer.c:119:13:disableInt	16	static,ignoring_inline_asm
+../Core/Src/buffer.c:124:13:enableInt	16	static,ignoring_inline_asm

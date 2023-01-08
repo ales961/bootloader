@@ -17,5 +17,5 @@
 ../Core/Src/usart.c:233:13:uartTransmitIntCallback	8	static
 ../Core/Src/usart.c:239:10:rxBufferGetSize	8	static
 ../Core/Src/usart.c:243:9:rxBufferPop	8	static
-../Core/Src/usart.c:247:10:rxBufToFlashBuf	24	static
+../Core/Src/usart.c:247:10:rxBufToFlashBuf	16	static
 ../Core/Src/usart.c:251:9:isRxStarted	4	static

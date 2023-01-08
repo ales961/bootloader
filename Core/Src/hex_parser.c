@@ -20,20 +20,21 @@ void asciiToHex(uint8_t* buff, uint8_t count) {
 	}
 }
 
-void fillBuffer(uint8_t* destination, uint8_t* source, uint16_t* startPtr, uint16_t count) {
+void fillBuffer(uint8_t* destination, uint16_t* startPtr, uint16_t count) {
 	for (int16_t i = 0; i < count; i++) {
-		destination[i] = source[*startPtr + i];
+		destination[i] = FlashReadByte(SECTOR_20_ADDRESS + *startPtr + i);
 	}
 	*startPtr += count;
 }
 
-void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size) {
-	EraseSector(sector);
+void flashHex(uint16_t size) {
 	uint16_t ptr = 0;
+	int16_t cntr = 0;
 	while (ptr < size) {
-		if(flashBuf[ptr] == ':') {
+		if(FlashReadByte(SECTOR_20_ADDRESS + ptr) == ':' || ptr == 0) { //TODO
+			cntr++;
 			ptr++;
-			fillBuffer(tempBuf, flashBuf, &ptr, 8);
+			fillBuffer(tempBuf, &ptr, 8);
 			asciiToHex(tempBuf, 8);
 
 			size_data = 2*(tempBuf[1] + 16*tempBuf[0]);//находим размер данных
@@ -44,7 +45,7 @@ void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size) {
 
 			if(type_data == 0x00) {
 				while(size_data > 0) {
-					fillBuffer(tempBuf, flashBuf, &ptr, 8);
+					fillBuffer(tempBuf, &ptr, 8);
 					asciiToHex(tempBuf, 8);
 
 
@@ -62,18 +63,18 @@ void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size) {
 				}
 				calculation_check_sum =  ~(calculation_check_sum) + 1;
 
-				fillBuffer(tempBuf, flashBuf, &ptr, 2);
+				fillBuffer(tempBuf, &ptr, 2);
 				asciiToHex(tempBuf, 2);
 
 
 				check_sum = tempBuf[1] + 16*tempBuf[0];
 				if(calculation_check_sum != check_sum ) {
-					//uartTransmit("\n\rchecksum error 1\n\r", 20);
+					uartTransmit("\n\rchecksum error 1\n\r", 20);
 				}
 				calculation_check_sum = 0;//обнуляем чек сумму
 
 			} else if(type_data == 0x04) {//дополнительный адрес
-				fillBuffer(tempBuf, flashBuf, &ptr, 4);
+				fillBuffer(tempBuf, &ptr, 4);
 				asciiToHex(tempBuf, 4);
 
 				extented_linear_adress = (uint32_t)(tempBuf[0]<<28 | tempBuf[1]<<24 | tempBuf[2]<<20 | tempBuf[3]<<16 );//считаем адрес
@@ -82,13 +83,13 @@ void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size) {
 				calculation_check_sum +=  16*tempBuf[0] + tempBuf[1]+ 16*tempBuf[2] + tempBuf[3];
 				calculation_check_sum =  ~(calculation_check_sum) + 1;
 
-				fillBuffer(tempBuf, flashBuf, &ptr, 2);
+				fillBuffer(tempBuf, &ptr, 2);
 				asciiToHex(tempBuf, 2);
 
 
 				check_sum = tempBuf[1] + 16*tempBuf[0];
 				if(calculation_check_sum != check_sum ) {
-					//uartTransmit("\n\rchecksum error 2\n\r", 20);
+					uartTransmit("\n\rchecksum error 2\n\r", 20);
 				}
 				calculation_check_sum = 0;//обнуляем чек сумму
 			} else if(type_data == 0x01) {//конец файла

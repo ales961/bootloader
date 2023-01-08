@@ -3,9 +3,13 @@
 #include "stm32f4xx_hal_flash_ex.h"
 #include "flash.h"
 
-void FlashWriteByte(uint32_t Address, uint8_t Data) {
+uint32_t ptr = 0;
+
+void FlashWriteBytes(uint32_t Address, uint8_t* Data, uint16_t size) {
 	HAL_FLASH_Unlock();
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, Address, Data);
+	for (uint16_t i = 0; i < size; i++) {
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, Address + i, Data[i]);
+	}
 	HAL_FLASH_Lock();
 }
 

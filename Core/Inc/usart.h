@@ -52,7 +52,7 @@ void uartPooling();
 uint8_t uartIsInterruptionEnabled();
 void sendRxBuffer(); //debug
 uint16_t rxBufferGetSize();
-uint16_t rxBufToFlashBuf(uint8_t* flashBuf);
+uint16_t rxBufToFlashBuf(uint8_t* flashBuf, uint16_t rxBufSize);
 uint8_t isRxStarted();
 uint8_t rxBufferPop();
 void debug();

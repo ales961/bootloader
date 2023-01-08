@@ -58,7 +58,7 @@ void MX_USART6_UART_Init(void)
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 9600;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;
@@ -244,8 +244,8 @@ uint8_t rxBufferPop() {
 	return bufferPop(rxBuffer);
 }
 
-uint16_t rxBufToFlashBuf(uint8_t* flashBuf) {
-	return bufferPopValues(rxBuffer, flashBuf, bufferGetSize(rxBuffer));
+uint16_t rxBufToFlashBuf(uint8_t* flashBuf, uint16_t rxBufSize) {
+	return bufferPopValues(rxBuffer, flashBuf, rxBufSize);
 }
 
 uint8_t isRxStarted() {

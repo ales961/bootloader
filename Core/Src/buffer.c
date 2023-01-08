@@ -86,8 +86,9 @@ uint16_t bufferPopValues(Buffer * const buffer, uint8_t * const buf, const uint1
     uint16_t popSize = bufferGetSize(buffer);
     if (popSize > bufSize)
         popSize = bufSize;
-    for (uint16_t i = 0; i < popSize; i++)
+    for (uint16_t i = 0; i < popSize; i++) {
         buf[i] = bufferPop(buffer);
+    }
     return popSize;
 }
 

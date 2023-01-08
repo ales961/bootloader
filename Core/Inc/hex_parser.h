@@ -4,6 +4,6 @@
 #include <inttypes.h>
 
 void asciiToHex(uint8_t* buff, uint8_t count);
-void fillBuffer(uint8_t* destination, uint8_t* source, uint16_t* startPtr, uint16_t count);
-void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size);
+void fillBuffer(uint8_t* destination, uint16_t* startPtr, uint16_t count);
+void flashHex(uint16_t size);
 #endif /* INC_HEX_PARSER_H_ */
