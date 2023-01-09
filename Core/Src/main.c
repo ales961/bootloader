@@ -49,9 +49,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static uint8_t flashBuf[65535];
-uint16_t rxBufSize = 0;
-uint32_t flashStoragePtr = 0;
+static uint8_t flashBuf[100000];
+uint32_t flashBufPtr = 0;
+uint32_t rxBufSize = 0;
 uint8_t loadApp = 1;
 /* USER CODE END PV */
 
@@ -97,7 +97,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART6_UART_Init();
   MX_TIM6_Init();
-  //MX_IWDG_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   uartEnableInterruption();
   buttonInit(GPIOC, GPIO_PIN_15);
@@ -115,33 +115,34 @@ int main(void)
 	  if (!loadApp) goto jumpToApp;
   }
 
-  EraseSector(FLASH_SECTOR_19);
-  EraseSector(FLASH_SECTOR_20);
   HAL_TIM_Base_Start_IT(&htim6);
   resetRxDone();
   while (isRxDone() == 0) {
 	  HAL_IWDG_Refresh(&hiwdg);
 	  rxBufSize = rxBufferGetSize();
 	  if (rxBufSize > 60000) {
-		  rxBufToFlashBuf(flashBuf, rxBufSize);
-		  FlashWriteBytes(SECTOR_20_ADDRESS + flashStoragePtr, flashBuf, rxBufSize);
-		  flashStoragePtr += rxBufSize;
+		  rxBufToFlashBuf(flashBuf + flashBufPtr, rxBufSize);
+		  flashBufPtr += rxBufSize;
 	  }
   }
 
-  rxBufSize = rxBufferGetSize();
-  if (rxBufSize > 0) {
-  	rxBufToFlashBuf(flashBuf, rxBufSize);
-	FlashWriteBytes(SECTOR_20_ADDRESS + flashStoragePtr, flashBuf, rxBufSize);
-	flashStoragePtr += rxBufSize;
-  }
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  flashHex(flashStoragePtr);
+  rxBufSize = rxBufferGetSize();
+  if (rxBufSize > 0) {
+	  rxBufToFlashBuf(flashBuf + flashBufPtr, rxBufSize);
+	  flashBufPtr += rxBufSize;
+  }
+
+
+  //EraseSector(FLASH_SECTOR_17);
+  flashHex(FLASH_SECTOR_17, flashBuf, rxBufSize);
+
+
   jumpToApp:
-  jumpToUserApp(SECTOR_19_ADDRESS);
+  jumpToUserApp(SECTOR_17_ADDRESS);
   while (1) {}
   /* USER CODE END 3 */
 }
