@@ -27,8 +27,7 @@ void fillBuffer(uint8_t* destination, uint8_t* source, uint16_t* startPtr, uint1
 	*startPtr += count;
 }
 
-void flashHex(uint32_t sector, uint8_t* flashBuf, uint16_t size) {
-	EraseSector(sector);
+void flashHex(uint8_t* flashBuf, uint16_t size) {
 	uint16_t ptr = 0;
 	while (ptr < size) {
 		if(flashBuf[ptr] == ':') {

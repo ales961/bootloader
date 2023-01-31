@@ -19,7 +19,8 @@ C_SRCS += \
 ../Core/Src/system_stm32f4xx.c \
 ../Core/Src/tim.c \
 ../Core/Src/uart.c \
-../Core/Src/usart.c 
+../Core/Src/usart.c \
+../Core/Src/xmodem.c 
 
 OBJS += \
 ./Core/Src/buffer.o \
@@ -36,7 +37,8 @@ OBJS += \
 ./Core/Src/system_stm32f4xx.o \
 ./Core/Src/tim.o \
 ./Core/Src/uart.o \
-./Core/Src/usart.o 
+./Core/Src/usart.o \
+./Core/Src/xmodem.o 
 
 C_DEPS += \
 ./Core/Src/buffer.d \
@@ -53,7 +55,8 @@ C_DEPS += \
 ./Core/Src/system_stm32f4xx.d \
 ./Core/Src/tim.d \
 ./Core/Src/uart.d \
-./Core/Src/usart.d 
+./Core/Src/usart.d \
+./Core/Src/xmodem.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -63,7 +66,7 @@ Core/Src/%.o Core/Src/%.su: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/buffer.d ./Core/Src/buffer.o ./Core/Src/buffer.su ./Core/Src/button.d ./Core/Src/button.o ./Core/Src/button.su ./Core/Src/flash.d ./Core/Src/flash.o ./Core/Src/flash.su ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/hex_parser.d ./Core/Src/hex_parser.o ./Core/Src/hex_parser.su ./Core/Src/iwdg.d ./Core/Src/iwdg.o ./Core/Src/iwdg.su ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/stm32f4xx_hal_msp.d ./Core/Src/stm32f4xx_hal_msp.o ./Core/Src/stm32f4xx_hal_msp.su ./Core/Src/stm32f4xx_it.d ./Core/Src/stm32f4xx_it.o ./Core/Src/stm32f4xx_it.su ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f4xx.d ./Core/Src/system_stm32f4xx.o ./Core/Src/system_stm32f4xx.su ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su ./Core/Src/uart.d ./Core/Src/uart.o ./Core/Src/uart.su ./Core/Src/usart.d ./Core/Src/usart.o ./Core/Src/usart.su
+	-$(RM) ./Core/Src/buffer.d ./Core/Src/buffer.o ./Core/Src/buffer.su ./Core/Src/button.d ./Core/Src/button.o ./Core/Src/button.su ./Core/Src/flash.d ./Core/Src/flash.o ./Core/Src/flash.su ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/hex_parser.d ./Core/Src/hex_parser.o ./Core/Src/hex_parser.su ./Core/Src/iwdg.d ./Core/Src/iwdg.o ./Core/Src/iwdg.su ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/stm32f4xx_hal_msp.d ./Core/Src/stm32f4xx_hal_msp.o ./Core/Src/stm32f4xx_hal_msp.su ./Core/Src/stm32f4xx_it.d ./Core/Src/stm32f4xx_it.o ./Core/Src/stm32f4xx_it.su ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f4xx.d ./Core/Src/system_stm32f4xx.o ./Core/Src/system_stm32f4xx.su ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su ./Core/Src/uart.d ./Core/Src/uart.o ./Core/Src/uart.su ./Core/Src/usart.d ./Core/Src/usart.o ./Core/Src/usart.su ./Core/Src/xmodem.d ./Core/Src/xmodem.o ./Core/Src/xmodem.su
 
 .PHONY: clean-Core-2f-Src
 

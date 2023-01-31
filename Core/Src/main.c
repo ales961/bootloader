@@ -30,6 +30,7 @@
 #include "flash.h"
 #include "hex_parser.h"
 #include "button.h"
+#include "xmodem.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +50,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static uint8_t flashBuf[65535];
 uint32_t flashBufPtr = 0;
 uint8_t loadApp = 1;
 /* USER CODE END PV */
@@ -108,29 +108,19 @@ int main(void)
 
 
   uartTransmit("started\n\r", 9);
+  HAL_TIM_Base_Start_IT(&htim6); //send "C" every 10 sec
   while (!isRxStarted()) {
 	  HAL_IWDG_Refresh(&hiwdg);
 	  buttonUpdateState();
 	  if (!loadApp) goto jumpToApp;
   }
-
-  HAL_TIM_Base_Start_IT(&htim6);
-  resetRxDone();
-  while (isRxDone() == 0) {
-	  HAL_IWDG_Refresh(&hiwdg);
-  }
-
+  EraseSector(FLASH_SECTOR_17);
+  HAL_TIM_Base_Stop_IT(&htim6);
+  xmodemReceive();
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  uint16_t size = rxBufferGetSize();
-  rxBufToFlashBuf(flashBuf);
-
-  //EraseSector(FLASH_SECTOR_17);
-  flashHex(FLASH_SECTOR_17, flashBuf, size);
-
-
   jumpToApp:
   jumpToUserApp(SECTOR_17_ADDRESS);
   while (1) {}
@@ -203,7 +193,9 @@ void jumpToUserApp(uint32_t address) {
 	  __set_PRIMASK(1);
 	  __disable_irq();
 
+	  //__DMB(); // Data Memory Barrier to ensure write to memory is completed
 	  SCB->VTOR = address;//change this
+      //__DSB(); // Data Synchronization Barrier to ensure all subsequence instructions use the new configuation
 
 	  //configure the MSP by reading the value from the base address
 	  uint32_t msp_value = *(__IO uint32_t*) address;

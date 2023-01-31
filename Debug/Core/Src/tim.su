@@ -1,6 +1,4 @@
-../Core/Src/tim.c:30:6:MX_TIM6_Init	16	static
-../Core/Src/tim.c:63:6:HAL_TIM_Base_MspInit	24	static
-../Core/Src/tim.c:83:6:HAL_TIM_Base_MspDeInit	16	static
-../Core/Src/tim.c:103:6:resetRxDone	4	static
-../Core/Src/tim.c:107:9:isRxDone	4	static
-../Core/Src/tim.c:111:6:HAL_TIM_PeriodElapsedCallback	16	static
+../Core/Src/tim.c:31:6:MX_TIM6_Init	16	static
+../Core/Src/tim.c:64:6:HAL_TIM_Base_MspInit	24	static
+../Core/Src/tim.c:84:6:HAL_TIM_Base_MspDeInit	16	static
+../Core/Src/tim.c:104:6:HAL_TIM_PeriodElapsedCallback	16	static
