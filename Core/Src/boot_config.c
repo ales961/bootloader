@@ -124,12 +124,6 @@ void jumpToApp() {
 	  app_reset_handler();
 }
 
-void eraseLogicalBank() {
-	uint32_t latestAppAddress = getLatestApplicationAddress();
-	if (latestAppAddress == APP_2_ADDRESS) eraseLogicalBank2();
-	else eraseLogicalBank1();
-}
-
 void eraseLogicalBank1() {
 	EraseSector(FLASH_SECTOR_3);
 	EraseSector(FLASH_SECTOR_4);
@@ -154,4 +148,10 @@ void eraseLogicalBank2() {
 	EraseSector(FLASH_SECTOR_21);
 	EraseSector(FLASH_SECTOR_22);
 	EraseSector(FLASH_SECTOR_23);
+}
+
+void eraseLogicalBank() {
+	uint32_t latestAppAddress = getLatestApplicationAddress();
+	if (latestAppAddress == APP_2_ADDRESS) eraseLogicalBank2();
+	else eraseLogicalBank1();
 }
