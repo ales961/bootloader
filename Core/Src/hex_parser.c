@@ -1,5 +1,6 @@
 #include "hex_parser.h"
 #include "flash.h"
+#include "boot_config.h"
 
 uint32_t extented_linear_adress = 0;//дополнительный адрес
 uint8_t size_data, type_data, check_sum;//размер, тип данных и чек сумма
@@ -27,7 +28,7 @@ void fillBuffer(uint8_t* destination, uint8_t* source, uint16_t* startPtr, uint1
 	*startPtr += count;
 }
 
-void flashHex(uint8_t* flashBuf, uint16_t size) {
+uint8_t flashHex(uint8_t* flashBuf, uint16_t size) {
 	uint16_t ptr = 0;
 	while (ptr < size) {
 		if(flashBuf[ptr] == ':') {
@@ -67,7 +68,7 @@ void flashHex(uint8_t* flashBuf, uint16_t size) {
 
 				check_sum = tempBuf[1] + 16*tempBuf[0];
 				if(calculation_check_sum != check_sum ) {
-					//uartTransmit("\n\rchecksum error 1\n\r", 20);
+					return 0;//uartTransmit("\n\rchecksum error 1\n\r", 20);
 				}
 				calculation_check_sum = 0;//обнуляем чек сумму
 
@@ -76,7 +77,7 @@ void flashHex(uint8_t* flashBuf, uint16_t size) {
 				asciiToHex(tempBuf, 4);
 
 				extented_linear_adress = (uint32_t)(tempBuf[0]<<28 | tempBuf[1]<<24 | tempBuf[2]<<20 | tempBuf[3]<<16 );//считаем адрес
-
+				if ((getLatestApplicationAddress() & 0xFFFF0000) != extented_linear_adress) return 2;//TODO
 
 				calculation_check_sum +=  16*tempBuf[0] + tempBuf[1]+ 16*tempBuf[2] + tempBuf[3];
 				calculation_check_sum =  ~(calculation_check_sum) + 1;
@@ -87,7 +88,7 @@ void flashHex(uint8_t* flashBuf, uint16_t size) {
 
 				check_sum = tempBuf[1] + 16*tempBuf[0];
 				if(calculation_check_sum != check_sum ) {
-					//uartTransmit("\n\rchecksum error 2\n\r", 20);
+					return 0;//uartTransmit("\n\rchecksum error 2\n\r", 20);
 				}
 				calculation_check_sum = 0;//обнуляем чек сумму
 			} else if(type_data == 0x01) {//конец файла
@@ -96,4 +97,5 @@ void flashHex(uint8_t* flashBuf, uint16_t size) {
 		}
 		ptr++;
 	}
+	return 1;
 }

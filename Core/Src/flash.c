@@ -3,6 +3,8 @@
 #include "stm32f4xx_hal_flash_ex.h"
 #include "flash.h"
 
+
+
 void FlashWriteByte(uint32_t Address, uint8_t Data) {
 	HAL_FLASH_Unlock();
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, Address, Data);
@@ -15,9 +17,12 @@ void FlashWriteWord(uint32_t Address, uint32_t Data) {
 	HAL_FLASH_Lock();
 }
 
-uint8_t FlashReadByte(uint32_t Address)
-{
+uint8_t FlashReadByte(uint32_t Address) {
     return (*(__IO uint8_t*)Address);
+}
+
+uint32_t FlashReadWord(uint32_t Address) {
+    return (*(__IO uint32_t*)Address);
 }
 
 void EraseSector(uint32_t Sector) {

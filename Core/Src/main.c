@@ -26,11 +26,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <string.h>
 #include "uart.h"
 #include "flash.h"
 #include "hex_parser.h"
-#include "button.h"
 #include "xmodem.h"
+#include "command.h"
+#include "menu.h"
+#include "boot_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,14 +54,22 @@
 
 /* USER CODE BEGIN PV */
 uint32_t flashBufPtr = 0;
-uint8_t loadApp = 1;
+static uint8_t uartBuf[128];
+static uint8_t uartBufLast = 0;
+static uint8_t hasLine = 0;
+static Command* commands[4];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void jumpToUserApp(uint32_t address);
-static void onButtonClick();
+static void receiveAndSendChar();
+static void sendCommandResult(const char* commandResult);
+static void sendMessage(const char* msg);
+static char* jumpToUserApp();
+static char* getHelpInfo();
+static char* downloadFirmware();
+static char* getAppVersions();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -73,7 +84,10 @@ static void onButtonClick();
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  commands[0] = commandCreate("jump", (CommandAction) jumpToUserApp, NONE);
+  commands[1] = commandCreate("update", (CommandAction) downloadFirmware, NONE);
+  commands[2] = commandCreate("version", (CommandAction) getAppVersions, NONE);//TODO
+  commands[3] = commandCreate("help", (CommandAction) getHelpInfo, NONE);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,31 +113,29 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   uartEnableInterruption();
-  buttonInit(GPIOC, GPIO_PIN_15);
-  buttonSetOnClick(&onButtonClick);
+  menuInit(commands, 4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-
-  uartTransmit("started\n\r", 9);
-  HAL_TIM_Base_Start_IT(&htim6); //send "C" every 10 sec
-  while (!isRxStarted()) {
+  while (1) {
 	  HAL_IWDG_Refresh(&hiwdg);
-	  buttonUpdateState();
-	  if (!loadApp) goto jumpToApp;
+
+	  if (uartHasNext()) {
+		  receiveAndSendChar();
+	  }
+
+	  if (hasLine) {
+		  uartBuf[uartBufLast] = '\0';
+		  const char* commandResult = menuExecuteCommand((char*) uartBuf);
+		  sendMessage("\n");
+		  sendCommandResult(commandResult);
+	  }
+	/* USER CODE END WHILE */
+
+	/* USER CODE BEGIN 3 */
   }
-  EraseSector(FLASH_SECTOR_17);
-  HAL_TIM_Base_Stop_IT(&htim6);
-  xmodemReceive();
 
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  jumpToApp:
-  jumpToUserApp(SECTOR_17_ADDRESS);
-  while (1) {}
   /* USER CODE END 3 */
 }
 
@@ -148,7 +160,12 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 64;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -158,8 +175,8 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV4;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -170,51 +187,63 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void jumpToUserApp(uint32_t address) {
-	  void(*app_reset_handler)();
-
-	  //shut down any tasks remaining
-	  HAL_TIM_Base_Stop_IT(&htim6);
-	  uartDisableInterruption();
-
-	  __HAL_RCC_GPIOC_CLK_DISABLE();
-	  __HAL_RCC_GPIOD_CLK_DISABLE();
-	  __HAL_RCC_GPIOB_CLK_DISABLE();
-	  __HAL_RCC_GPIOA_CLK_DISABLE();
-
-	  HAL_RCC_DeInit();// to turn off the PLL and set the clock to it's default state
-	  HAL_DeInit();// to disable all the peripherals
-
-	  SysTick->CTRL = 0;//to turn off the systick
-	  SysTick->LOAD = 0;
-	  SysTick->VAL = 0;
-
-	  //disable interrupts
-	  __set_PRIMASK(1);
-	  __disable_irq();
-
-	  //__DMB(); // Data Memory Barrier to ensure write to memory is completed
-	  SCB->VTOR = address;//change this
-      //__DSB(); // Data Synchronization Barrier to ensure all subsequence instructions use the new configuation
-
-	  //configure the MSP by reading the value from the base address
-	  uint32_t msp_value = *(__IO uint32_t*) address;
-
-	  __set_MSP(msp_value);
-
-	  uint32_t resethandler_address = *(__IO uint32_t*) (address + 4);
-
-	  //app_reset_handler = (void*)resethandler_address;
-	  app_reset_handler = (void (*)(void)) (resethandler_address);
-
-	  //jump to reset handler of the user app.
-	  //NVIC_SystemReset(); //?????
-	  __enable_irq();
-	  app_reset_handler();
+static char* jumpToUserApp() {
+	validateApplications();
+	if (getLatestApplicationAddress() == 0) {
+		return "No valid application in flash\n";
+	} else {
+		jumpToApp();
+		return "Done";
+	}
 }
 
-static void onButtonClick() {
-    loadApp = 0;
+static char* getHelpInfo() {
+    return "jump: jump to application\n 				\
+    update: download firmware and jump to it\n			\
+    version: get current version of application\n		\
+    help: get information about commands\n";
+}
+
+static char* downloadFirmware() {
+	validateApplications();
+	updateConfig();
+	eraseLogicalBank();
+	uint8_t xmodemStatus = xmodemReceive();
+	if (xmodemStatus == 1) {
+		return jumpToUserApp();
+	} else if (xmodemStatus == 2) {
+		rollbackConfig();
+		return "Error. Choose firmware for another bank.\n";
+	} else {
+		rollbackConfig();
+		return "Error. Update aborted.\n";
+	};
+}
+
+static char* getAppVersions() {
+	validateApplications();
+	return getVersions();
+}
+
+static void receiveAndSendChar() {
+    if (uartReceive(uartBuf + uartBufLast, 1)) {
+        uint8_t received = uartBuf[uartBufLast];
+        uartBufLast++;
+        uartTransmit(&received, 1);
+
+        if (received == '\r')
+            hasLine = 1;
+    }
+}
+
+static void sendCommandResult(const char* commandResult) {
+    uartTransmit((uint8_t *) commandResult, strlen(commandResult));
+    uartBufLast = 0;
+    hasLine = 0;
+}
+
+static void sendMessage(const char* msg) {
+    uartTransmit((uint8_t *) msg, strlen(msg));
 }
 /* USER CODE END 4 */
 

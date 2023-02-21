@@ -1,0 +1,9 @@
+../Core/Src/boot_config.c:22:7:getVersions	16	static
+../Core/Src/boot_config.c:39:10:getLatestApplicationAddress	16	static
+../Core/Src/boot_config.c:49:6:updateConfig	24	static
+../Core/Src/boot_config.c:66:6:rollbackConfig	16	static
+../Core/Src/boot_config.c:72:6:validateApplications	8	static
+../Core/Src/boot_config.c:79:6:jumpToApp	32	static,ignoring_inline_asm
+../Core/Src/boot_config.c:127:6:eraseLogicalBank	16	static
+../Core/Src/boot_config.c:133:6:eraseLogicalBank1	8	static
+../Core/Src/boot_config.c:145:6:eraseLogicalBank2	8	static

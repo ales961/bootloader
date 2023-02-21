@@ -1,6 +1,7 @@
 #include "xmodem.h"
 #include "usart.h"
 #include "hex_parser.h"
+#include "tim.h"
 
 
 /* Global variables. */
@@ -9,6 +10,7 @@ uint8_t xmodemBuf[256];
 uint16_t xmodemBufSize = 0;
 uint8_t remainingDataBuf[128];
 uint16_t remainingDataSize = 0;
+uint8_t timerWorking = 0;
 
 
 /* Local functions. */
@@ -22,21 +24,25 @@ void cutBuf();
  * @brief   This function is the base of the Xmodem protocol.
  *          When we receive a header from UART, it decides what action it shall take.
  * @param   void
- * @return  void
+ * @return  uint8_t
  */
-void xmodemReceive(void) {
+uint8_t xmodemReceive() {
     volatile xmodem_status status = X_OK;
     uint8_t error_number = 0;
     uint8_t header = 0x00u;
     xmodemPacketNumber = 1u;
-
-    /* Loop until there isn't any error (or until we jump to the user application). */
+    HAL_TIM_Base_Start_IT(&htim6); //send "C" every 10 sec
+    timerWorking = 1;
+    /* Loop until there isn't any error or done. */
     while (status == X_OK) {
   	    WRITE_REG(IWDG->KR, 0x0000AAAAU);
-    	HAL_Delay(100);
-
 	    xmodemBufSize = uartReceive(xmodemBuf, 1);
 	    if (xmodemBufSize != 1) continue;
+	    if (timerWorking) {
+	    	HAL_TIM_Base_Stop_IT(&htim6); //stop sending "C"
+	    	timerWorking = 0;
+	    }
+    	HAL_Delay(100);
         header = xmodemBuf[0];
 
         xmodem_status packet_status = X_ERROR;
@@ -46,6 +52,9 @@ void xmodemReceive(void) {
                 packet_status = xmodem_handle_packet(header); //If the handling was successful, then send an ACK
                 if (packet_status == X_OK) {
                 	uartTransmitChar(X_ACK);
+                } else if (packet_status == X_WRONG_FIRMWARE) {
+                	xmodem_error_handler(&error_number, 0);
+                	status = X_WRONG_FIRMWARE;
                 } else {
                 	status = xmodem_error_handler(&error_number, X_MAX_ERRORS); //Error while processing the packet, either send a NAK or do graceful abort
                 }
@@ -53,7 +62,7 @@ void xmodemReceive(void) {
             /* End of Transmission. */
             case X_EOT:
             	uartTransmitChar(X_ACK);
-            	status = X_ERROR;
+            	status = X_DONE;
             	break;
             /* Abort from host. */
             case X_CAN:
@@ -65,6 +74,9 @@ void xmodemReceive(void) {
             	break;
         }
     }
+    if (status == X_DONE) return 1;
+    else if (status == X_WRONG_FIRMWARE) return 2;
+    else return 0;
 }
 
 /**
@@ -131,7 +143,9 @@ static xmodem_status xmodem_handle_packet(uint8_t header) {
     cutBuf();
 
     /* Move data to flash */
-    flashHex(xmodemBuf, xmodemBufSize);
+    uint8_t flashHexCode = flashHex(xmodemBuf, xmodemBufSize);
+    if (flashHexCode == 0) return X_ERROR_FLASH;
+    if (flashHexCode == 2) return X_WRONG_FIRMWARE;
 
     xmodemPacketNumber++;
     return X_OK;
@@ -157,6 +171,10 @@ static xmodem_status xmodem_error_handler(uint8_t *error_number, uint8_t max_err
 	} else { // Otherwise send a NAK for a repeat.
 		uartTransmitChar(X_NAK);
 		status = X_OK;
+	}
+	if (xmodemPacketNumber == 1) {
+		HAL_TIM_Base_Start_IT(&htim6);
+		timerWorking = 1;
 	}
 	return status;
 }
