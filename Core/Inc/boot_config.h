@@ -10,6 +10,8 @@
 #define APP_1_ADDRESS SECTOR_3_ADDRESS
 #define APP_2_ADDRESS SECTOR_13_ADDRESS
 
+#define EMPTY (uint32_t) 0xFFFFFFFF
+
 char* getVersions();
 void jumpToApp();
 uint32_t getLatestApplicationAddress();

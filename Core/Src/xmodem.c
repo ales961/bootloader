@@ -5,7 +5,7 @@
 
 
 /* Global variables. */
-static uint8_t xmodemPacketNumber = 1u;         /**< Packet number counter. */
+uint8_t xmodemPacketNumber = 1u;         /**< Packet number counter. */
 uint8_t xmodemBuf[256];
 uint16_t xmodemBufSize = 0;
 uint8_t remainingDataBuf[128];
@@ -119,22 +119,28 @@ static xmodem_status xmodem_handle_packet(uint8_t header) {
 
     /* Receive packet number */
     size = uartReceive(xmodemBuf, 2);
-    if (size != 2) return X_ERROR_UART;
-    if (xmodemBuf[0] != xmodemPacketNumber) return X_ERROR_NUMBER;
-    if (xmodemBuf[0] + xmodemBuf[1] != 255) return X_ERROR_NUMBER;
+    if (size != 2)
+    	return X_ERROR_UART;
+    if (xmodemBuf[0] != xmodemPacketNumber)
+    	return X_ERROR_NUMBER;
+    if (xmodemBuf[0] + xmodemBuf[1] != 255)
+    	return X_ERROR_NUMBER;
 
     /* Receive packet data */
     size = uartReceive(dataTempBuf, X_PACKET_128_SIZE);
-    if (size != X_PACKET_128_SIZE) return X_ERROR_UART;
+    if (size != X_PACKET_128_SIZE)
+    	return X_ERROR_UART;
 
     /* Receive CRC */
     size = uartReceive(crcBuf, 2);
-    if (size != 2) return X_ERROR_UART;
+    if (size != 2)
+    	return X_ERROR_UART;
 
     /* Check CRC */
     uint16_t crcMerged = ((uint16_t) crcBuf[0] << 8) | ((uint16_t) crcBuf[1]); //Merge the two bytes of CRC
     uint16_t crcCalculated = xmodemCalcCrc(dataTempBuf, X_PACKET_128_SIZE);
-    if (crcMerged != crcCalculated) return X_ERROR_CRC;
+    if (crcMerged != crcCalculated)
+    	return X_ERROR_CRC;
 
     /* Add remaining data from previous packet to current data */
     addRemainingDataToCurrentBuf(dataTempBuf);
@@ -144,8 +150,10 @@ static xmodem_status xmodem_handle_packet(uint8_t header) {
 
     /* Move data to flash */
     uint8_t flashHexCode = flashHex(xmodemBuf, xmodemBufSize);
-    if (flashHexCode == 0) return X_ERROR_FLASH;
-    if (flashHexCode == 2) return X_WRONG_FIRMWARE;
+    if (flashHexCode == 0)
+    	return X_ERROR_FLASH;
+    if (flashHexCode == 2)
+    	return X_WRONG_FIRMWARE;
 
     xmodemPacketNumber++;
     return X_OK;
@@ -172,7 +180,7 @@ static xmodem_status xmodem_error_handler(uint8_t *error_number, uint8_t max_err
 		uartTransmitChar(X_NAK);
 		status = X_OK;
 	}
-	if (xmodemPacketNumber == 1) {
+	if (xmodemPacketNumber == 1 && status == X_OK) {
 		HAL_TIM_Base_Start_IT(&htim6);
 		timerWorking = 1;
 	}

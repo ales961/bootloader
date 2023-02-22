@@ -26,7 +26,7 @@
 #include "buffer.h"
 #include "uart.h"
 
-#define TX_BUFFER_SIZE 64
+#define TX_BUFFER_SIZE 256
 #define RX_BUFFER_SIZE 256
 
 static Buffer *txBuffer;

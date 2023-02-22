@@ -12,8 +12,10 @@ void FlashWriteByte(uint32_t Address, uint8_t Data) {
 }
 
 void FlashWriteWord(uint32_t Address, uint32_t Data) {
+	HAL_StatusTypeDef status = HAL_ERROR;
 	HAL_FLASH_Unlock();
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, Data);
+	while (status != HAL_OK)
+		status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, Data);
 	HAL_FLASH_Lock();
 }
 
@@ -26,6 +28,7 @@ uint32_t FlashReadWord(uint32_t Address) {
 }
 
 void EraseSector(uint32_t Sector) {
+	HAL_StatusTypeDef status = HAL_ERROR;
 	HAL_FLASH_Unlock();
 	uint32_t SectorError;
 	static FLASH_EraseInitTypeDef EraseInitStruct;
@@ -33,6 +36,7 @@ void EraseSector(uint32_t Sector) {
 	EraseInitStruct.Sector = Sector;
 	EraseInitStruct.NbSectors = 1 ;
 	EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-	HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
+	while (status != HAL_OK)
+		status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
 	HAL_FLASH_Lock();
 }

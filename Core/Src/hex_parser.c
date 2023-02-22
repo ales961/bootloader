@@ -9,6 +9,8 @@ uint32_t program_data;//слово которое пишется во флеш
 uint8_t calculation_check_sum = 0;//чек-сумма
 uint8_t tempBuf[8];
 
+uint8_t firstFirmwarePlaceCheck = 1;
+
 void asciiToHex(uint8_t* buff, uint8_t count) {
 	uint8_t i;
 	for(i=0; i<count;i++) {
@@ -77,9 +79,12 @@ uint8_t flashHex(uint8_t* flashBuf, uint16_t size) {
 				asciiToHex(tempBuf, 4);
 
 				extented_linear_adress = (uint32_t)(tempBuf[0]<<28 | tempBuf[1]<<24 | tempBuf[2]<<20 | tempBuf[3]<<16 );//считаем адрес
-				if ((getLatestApplicationAddress() & 0xFFFF0000) != extented_linear_adress) return 2;//TODO
+				if ((getLatestApplicationAddress() & 0xFFFF0000) != extented_linear_adress &&
+						firstFirmwarePlaceCheck) //TODO
+					return 2;
+				firstFirmwarePlaceCheck = 0;
 
-				calculation_check_sum +=  16*tempBuf[0] + tempBuf[1]+ 16*tempBuf[2] + tempBuf[3];
+				calculation_check_sum +=  16*tempBuf[0] + tempBuf[1] + 16*tempBuf[2] + tempBuf[3];
 				calculation_check_sum =  ~(calculation_check_sum) + 1;
 
 				fillBuffer(tempBuf, flashBuf, &ptr, 2);

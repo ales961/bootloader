@@ -110,7 +110,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART6_UART_Init();
   MX_TIM6_Init();
-  MX_IWDG_Init();
+  //MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   uartEnableInterruption();
   menuInit(commands, 4);
@@ -198,24 +198,30 @@ static char* jumpToUserApp() {
 }
 
 static char* getHelpInfo() {
-    return "jump: jump to application\n 				\
-    update: download firmware and jump to it\n			\
-    version: get current version of application\n		\
-    help: get information about commands\n";
+    return "jump: jump to application\n\
+update: download firmware and jump to it\n\
+version: get current version of application\n\
+help: get information about commands\n";
 }
 
 static char* downloadFirmware() {
 	validateApplications();
 	updateConfig();
+	sendMessage("Bank erasing...\n");
+	HAL_Delay(100);
 	eraseLogicalBank();
+	sendMessage("Send hex file via XMODEM\n");
+	HAL_Delay(100);
 	uint8_t xmodemStatus = xmodemReceive();
 	if (xmodemStatus == 1) {
 		return jumpToUserApp();
 	} else if (xmodemStatus == 2) {
 		rollbackConfig();
+		NVIC_SystemReset(); //TODO
 		return "Error. Choose firmware for another bank.\n";
 	} else {
 		rollbackConfig();
+		NVIC_SystemReset(); //TODO
 		return "Error. Update aborted.\n";
 	};
 }

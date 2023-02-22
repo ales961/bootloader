@@ -20,18 +20,18 @@ uint32_t versionAddress2 = CONFIG_2_ADDRESS + 12;
 
 static char versionBuf[128];
 char* getVersions() { //TODO
-	if (FlashReadWord(versionAddress1) == (uint32_t) 0xFFFF &&
-			FlashReadWord(versionAddress2) == (uint32_t) 0xFFFF) {
+	uint32_t ver1 = FlashReadWord(versionAddress1);
+	uint32_t ver2 = FlashReadWord(versionAddress2);
+	if (ver1 == EMPTY && ver2 == EMPTY) {
 		return "No applications in flash\n";
-	} else if (FlashReadWord(versionAddress1) == (uint32_t) 0xFFFF) {
-		sprintf(versionBuf, "App 1 version: none\nApp 2 version: %"PRIu32"\n", FlashReadWord(versionAddress2));
+	} else if (ver1 == EMPTY) {
+		sprintf(versionBuf, "App 1 version: none\nApp 2 version: %"PRIu32"\n", ver2);
 		return versionBuf;
-	} else if (FlashReadWord(versionAddress2) == (uint32_t) 0xFFFF) {
-		sprintf(versionBuf, "App 1 version: %"PRIu32"\nApp 2 version: none\n", FlashReadWord(versionAddress1));
+	} else if (ver2 == EMPTY) {
+		sprintf(versionBuf, "App 1 version: %"PRIu32"\nApp 2 version: none\n", ver1);
 		return versionBuf;
 	} else {
-		sprintf(versionBuf, "App 1 version: %"PRIu32"\nApp 2 version: %"PRIu32"\n",
-				FlashReadWord(versionAddress1), FlashReadWord(versionAddress2));
+		sprintf(versionBuf, "App 1 version: %"PRIu32"\nApp 2 version: %"PRIu32"\n", ver1, ver2);
 		return versionBuf;
 	}
 }
@@ -65,21 +65,29 @@ void updateConfig() {
 
 void rollbackConfig() {
 	uint32_t latestAppAddress = getLatestApplicationAddress();
-		if (latestAppAddress == APP_1_ADDRESS) EraseSector(CONFIG_1_SECTOR);
-		else if (latestAppAddress == APP_2_ADDRESS)	EraseSector(CONFIG_2_SECTOR);
+	if (latestAppAddress == APP_1_ADDRESS)
+		EraseSector(CONFIG_1_SECTOR);
+	else if (latestAppAddress == APP_2_ADDRESS)
+		EraseSector(CONFIG_2_SECTOR);
 }
 
 void validateApplications() {
-	if (FlashReadWord(notValidFlagAddress1) == (uint32_t) 0xFFFF &&
-			FlashReadWord(firstBootFlagAddress1) == 0) EraseSector(CONFIG_1_SECTOR);
-	if (FlashReadWord(notValidFlagAddress2) == (uint32_t) 0xFFFF &&
-			FlashReadWord(firstBootFlagAddress2) == 0) EraseSector(CONFIG_2_SECTOR);
+	uint32_t nValid1 = FlashReadWord(notValidFlagAddress1);
+	uint32_t firstBoot1 = FlashReadWord(firstBootFlagAddress1);
+	uint32_t nValid2 = FlashReadWord(notValidFlagAddress2);
+	uint32_t firstBoot2 = FlashReadWord(firstBootFlagAddress2);
+	if (nValid1 == EMPTY && firstBoot1 == 0)
+		EraseSector(CONFIG_1_SECTOR);
+	if (nValid2 == EMPTY && firstBoot2 == 0)
+		EraseSector(CONFIG_2_SECTOR);
 }
 
 void jumpToApp() {
 	  uint32_t address = getLatestApplicationAddress();
-	  if (address == APP_1_ADDRESS) FlashWriteWord(firstBootFlagAddress1, 0);
-	  else if (address == APP_2_ADDRESS) FlashWriteWord(firstBootFlagAddress2, 0);
+	  if (address == APP_1_ADDRESS)
+		  FlashWriteWord(firstBootFlagAddress1, 0);
+	  else if (address == APP_2_ADDRESS)
+		  FlashWriteWord(firstBootFlagAddress2, 0);
 	  else return;
 
 	  void(*app_reset_handler)();

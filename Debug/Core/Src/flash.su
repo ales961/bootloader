@@ -1,5 +1,5 @@
 ../Core/Src/flash.c:8:6:FlashWriteByte	24	static
-../Core/Src/flash.c:14:6:FlashWriteWord	24	static
-../Core/Src/flash.c:20:9:FlashReadByte	16	static
-../Core/Src/flash.c:24:10:FlashReadWord	16	static
-../Core/Src/flash.c:28:6:EraseSector	24	static
+../Core/Src/flash.c:14:6:FlashWriteWord	32	static
+../Core/Src/flash.c:22:9:FlashReadByte	16	static
+../Core/Src/flash.c:26:10:FlashReadWord	16	static
+../Core/Src/flash.c:30:6:EraseSector	24	static
