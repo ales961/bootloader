@@ -2,7 +2,7 @@
 #include "flash.h"
 #include "boot_config.h"
 
-uint32_t extented_linear_adress = 0;//дополнительный адрес
+uint32_t applicationAddress = 0;
 uint8_t size_data, type_data, check_sum;//размер, тип данных и чек сумма
 uint16_t address_data;//младшие 16 бит адреса
 uint32_t program_data;//слово которое пишется во флеш
@@ -56,10 +56,10 @@ uint8_t flashHex(uint8_t* flashBuf, uint16_t size) {
 						program_data |= tempBuf[i] <<(i*4);
 					}
 
-					FlashWriteWord(extented_linear_adress + address_data, program_data);
+					FlashWriteWord(applicationAddress, program_data);
 					calculation_check_sum += (uint8_t)program_data + (uint8_t)(program_data>>8) + (uint8_t)(program_data>>16) + (uint8_t)(program_data>>24);
 					size_data -= 8;
-					address_data += 4;
+					applicationAddress += 4;
 					program_data = 0;
 				}
 				calculation_check_sum =  ~(calculation_check_sum) + 1;
@@ -75,27 +75,10 @@ uint8_t flashHex(uint8_t* flashBuf, uint16_t size) {
 				calculation_check_sum = 0;//обнуляем чек сумму
 
 			} else if(type_data == 0x04) {//дополнительный адрес
-				fillBuffer(tempBuf, flashBuf, &ptr, 4);
-				asciiToHex(tempBuf, 4);
-
-				extented_linear_adress = (uint32_t)(tempBuf[0]<<28 | tempBuf[1]<<24 | tempBuf[2]<<20 | tempBuf[3]<<16 );//считаем адрес
-				if ((getLatestApplicationAddress() & 0xFFFF0000) != extented_linear_adress &&
-						firstFirmwarePlaceCheck) //TODO
-					return 2;
-				firstFirmwarePlaceCheck = 0;
-
-				calculation_check_sum +=  16*tempBuf[0] + tempBuf[1] + 16*tempBuf[2] + tempBuf[3];
-				calculation_check_sum =  ~(calculation_check_sum) + 1;
-
-				fillBuffer(tempBuf, flashBuf, &ptr, 2);
-				asciiToHex(tempBuf, 2);
-
-
-				check_sum = tempBuf[1] + 16*tempBuf[0];
-				if(calculation_check_sum != check_sum ) {
-					return 0;//uartTransmit("\n\rchecksum error 2\n\r", 20);
+				if (firstFirmwarePlaceCheck) {
+					applicationAddress = getLatestApplicationAddress();
+					firstFirmwarePlaceCheck = 0;
 				}
-				calculation_check_sum = 0;//обнуляем чек сумму
 			} else if(type_data == 0x01) {//конец файла
 				break;
 			}

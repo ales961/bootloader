@@ -123,11 +123,9 @@ void jumpToApp() {
 
 	  uint32_t resethandler_address = *(__IO uint32_t*) (address + 4);
 
-	  //app_reset_handler = (void*)resethandler_address;
 	  app_reset_handler = (void (*)(void)) (resethandler_address);
 
 	  //jump to reset handler of the user app.
-	  //NVIC_SystemReset(); //?????
 	  __enable_irq();
 	  app_reset_handler();
 }
