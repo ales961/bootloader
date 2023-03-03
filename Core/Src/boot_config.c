@@ -12,11 +12,13 @@ uint32_t seqAddress1 = CONFIG_1_ADDRESS;
 uint32_t firstBootFlagAddress1 = CONFIG_1_ADDRESS + 4;
 uint32_t notValidFlagAddress1 = CONFIG_1_ADDRESS + 8;
 uint32_t versionAddress1 = CONFIG_1_ADDRESS + 12;
+uint32_t notCorrectUpdateFlagAddress1 = CONFIG_1_ADDRESS + 16;
 
 uint32_t seqAddress2 = CONFIG_2_ADDRESS;
 uint32_t firstBootFlagAddress2 = CONFIG_2_ADDRESS + 4;
 uint32_t notValidFlagAddress2 = CONFIG_2_ADDRESS + 8;
 uint32_t versionAddress2 = CONFIG_2_ADDRESS + 12;
+uint32_t notCorrectUpdateFlagAddress2 = CONFIG_2_ADDRESS + 16;
 
 static char versionBuf[128];
 char* getVersions() { //TODO
@@ -53,15 +55,32 @@ void updateConfig() {
 		FlashWriteWord(seqAddress2, FlashReadWord(seqAddress1) - 1);
 		//FlashWriteWord(firstBootFlagAddress2, 0xFFFF); // FFFF - first boot (default)
 		//FlashWriteWord(notValidFlagAddress2, 0xFFFF); // FFFF - not valid (default)
-		FlashWriteWord(versionAddress2, FlashReadWord(versionAddress1) + 1);
 	} else {
 		EraseSector(CONFIG_1_SECTOR);
 		FlashWriteWord(seqAddress1, FlashReadWord(seqAddress2) - 1);
 		//FlashWriteWord(firstBootFlagAddress1, 0xFFFF); // FFFF - first boot (default)
 		//FlashWriteWord(notValidFlagAddress1, 0xFFFF); // FFFF - not valid (default)
-		FlashWriteWord(versionAddress1, FlashReadWord(versionAddress2) + 1);
 	}
 }
+
+void setAppVersion(uint32_t version) {
+	uint32_t latestAppAddress = getLatestApplicationAddress();
+		if (latestAppAddress == APP_1_ADDRESS) {
+			FlashWriteWord(versionAddress1, version);
+		} else {
+			FlashWriteWord(versionAddress2, version);
+		}
+}
+
+void setCorrectUpdateFlag() {
+	uint32_t latestAppAddress = getLatestApplicationAddress();
+		if (latestAppAddress == APP_1_ADDRESS) {
+			FlashWriteWord(notCorrectUpdateFlagAddress1, 0);
+		} else {
+			FlashWriteWord(notCorrectUpdateFlagAddress2, 0);
+		}
+}
+
 
 void rollbackConfig() {
 	uint32_t latestAppAddress = getLatestApplicationAddress();
@@ -74,11 +93,13 @@ void rollbackConfig() {
 void validateApplications() {
 	uint32_t nValid1 = FlashReadWord(notValidFlagAddress1);
 	uint32_t firstBoot1 = FlashReadWord(firstBootFlagAddress1);
+	uint32_t nCorrect1 = FlashReadWord(notCorrectUpdateFlagAddress1);
 	uint32_t nValid2 = FlashReadWord(notValidFlagAddress2);
 	uint32_t firstBoot2 = FlashReadWord(firstBootFlagAddress2);
-	if (nValid1 == EMPTY && firstBoot1 == 0)
+	uint32_t nCorrect2 = FlashReadWord(notCorrectUpdateFlagAddress2);
+	if ((nValid1 == EMPTY && firstBoot1 == 0) || nCorrect1 != 0)
 		EraseSector(CONFIG_1_SECTOR);
-	if (nValid2 == EMPTY && firstBoot2 == 0)
+	if ((nValid2 == EMPTY && firstBoot2 == 0) || nCorrect2 != 0)
 		EraseSector(CONFIG_2_SECTOR);
 }
 
@@ -88,7 +109,6 @@ void jumpToApp() {
 		  FlashWriteWord(firstBootFlagAddress1, 0);
 	  else if (address == APP_2_ADDRESS)
 		  FlashWriteWord(firstBootFlagAddress2, 0);
-	  else return;
 
 	  void(*app_reset_handler)();
 
@@ -130,34 +150,9 @@ void jumpToApp() {
 	  app_reset_handler();
 }
 
-void eraseLogicalBank1() {
-	EraseSector(FLASH_SECTOR_3);
-	EraseSector(FLASH_SECTOR_4);
-	EraseSector(FLASH_SECTOR_5);
-	EraseSector(FLASH_SECTOR_6);
-	EraseSector(FLASH_SECTOR_7);
-	EraseSector(FLASH_SECTOR_8);
-	EraseSector(FLASH_SECTOR_9);
-	EraseSector(FLASH_SECTOR_10);
-	EraseSector(FLASH_SECTOR_11);
-}
-
-void eraseLogicalBank2() {
-	EraseSector(FLASH_SECTOR_13);
-	EraseSector(FLASH_SECTOR_14);
-	EraseSector(FLASH_SECTOR_15);
-	EraseSector(FLASH_SECTOR_16);
-	EraseSector(FLASH_SECTOR_17);
-	EraseSector(FLASH_SECTOR_18);
-	EraseSector(FLASH_SECTOR_19);
-	EraseSector(FLASH_SECTOR_20);
-	EraseSector(FLASH_SECTOR_21);
-	EraseSector(FLASH_SECTOR_22);
-	EraseSector(FLASH_SECTOR_23);
-}
-
-void eraseLogicalBank() {
-	uint32_t latestAppAddress = getLatestApplicationAddress();
-	if (latestAppAddress == APP_2_ADDRESS) eraseLogicalBank2();
-	else eraseLogicalBank1();
+void EraseNecessarySectors(uint32_t address, uint8_t* sector) {
+	if (address == sectorAddresses[*sector]) {
+		EraseSector(*sector);
+		(*sector)++;
+	}
 }

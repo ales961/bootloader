@@ -57,7 +57,7 @@ uint32_t flashBufPtr = 0;
 static uint8_t uartBuf[128];
 static uint8_t uartBufLast = 0;
 static uint8_t hasLine = 0;
-static Command* commands[4];
+static Command* commands[5];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,8 +68,9 @@ static void sendCommandResult(const char* commandResult);
 static void sendMessage(const char* msg);
 static char* jumpToUserApp();
 static char* getHelpInfo();
-static char* downloadFirmware();
+static char* downloadFirmware(uint32_t* version);
 static char* getAppVersions();
+static char* eraseConfigs();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -85,9 +86,10 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
   commands[0] = commandCreate("jump", (CommandAction) jumpToUserApp, NONE);
-  commands[1] = commandCreate("update", (CommandAction) downloadFirmware, NONE);
+  commands[1] = commandCreate("update", (CommandAction) downloadFirmware, INT);
   commands[2] = commandCreate("version", (CommandAction) getAppVersions, NONE);//TODO
   commands[3] = commandCreate("help", (CommandAction) getHelpInfo, NONE);
+  commands[4] = commandCreate("clear", (CommandAction) eraseConfigs, NONE);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -110,10 +112,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART6_UART_Init();
   MX_TIM6_Init();
-  //MX_IWDG_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   uartEnableInterruption();
-  menuInit(commands, 4);
+  menuInit(commands, 5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -199,21 +201,21 @@ static char* jumpToUserApp() {
 
 static char* getHelpInfo() {
     return "jump: jump to application\n\
-update: download firmware and jump to it\n\
+update <version>: download firmware and jump to it\n\
 version: get current version of application\n\
-help: get information about commands\n";
+help: get information about commands\n\
+clear: erase configs\n";
 }
 
-static char* downloadFirmware() {
+static char* downloadFirmware(uint32_t* version) {
 	validateApplications();
 	updateConfig();
-	sendMessage("Bank erasing...\n");
-	HAL_Delay(100);
-	eraseLogicalBank();
+	setAppVersion(*version);
 	sendMessage("Send hex file via XMODEM\n");
 	HAL_Delay(100);
 	uint8_t xmodemStatus = xmodemReceive();
 	if (xmodemStatus == 1) {
+		setCorrectUpdateFlag();
 		return jumpToUserApp();
 	} else if (xmodemStatus == 2) {
 		rollbackConfig();
@@ -229,6 +231,12 @@ static char* downloadFirmware() {
 static char* getAppVersions() {
 	validateApplications();
 	return getVersions();
+}
+
+static char* eraseConfigs() {
+	EraseSector(CONFIG_1_SECTOR);
+	EraseSector(CONFIG_2_SECTOR);
+	return "Configs erased\n";
 }
 
 static void receiveAndSendChar() {
