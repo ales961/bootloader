@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "iwdg.h"
+#include "lwip.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -34,6 +35,9 @@
 #include "command.h"
 #include "menu.h"
 #include "boot_config.h"
+#include "tcp.h"
+#include "ethernetif.h"
+#include "lwip_callbacks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +62,7 @@ static uint8_t uartBuf[128];
 static uint8_t uartBufLast = 0;
 static uint8_t hasLine = 0;
 static Command* commands[5];
+ip4_addr_t ip_addr;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,7 +92,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
   commands[0] = commandCreate("jump", (CommandAction) jumpToUserApp, NONE);
   commands[1] = commandCreate("update", (CommandAction) downloadFirmware, INT);
-  commands[2] = commandCreate("version", (CommandAction) getAppVersions, NONE);//TODO
+  commands[2] = commandCreate("version", (CommandAction) getAppVersions, NONE);
   commands[3] = commandCreate("help", (CommandAction) getHelpInfo, NONE);
   commands[4] = commandCreate("clear", (CommandAction) eraseConfigs, NONE);
   /* USER CODE END 1 */
@@ -113,15 +118,36 @@ int main(void)
   MX_USART6_UART_Init();
   MX_TIM6_Init();
   MX_IWDG_Init();
+  MX_LWIP_Init();
   /* USER CODE BEGIN 2 */
   uartEnableInterruption();
   menuInit(commands, 5);
+
+
+  struct tcp_pcb* tcp_pcb = tcp_new();
+  if(tcp_pcb != NULL) {
+	  err_t err;
+	  IP4_ADDR(&ip_addr, 192, 168, 1, 193);
+	  err = tcp_bind(tcp_pcb, &ip_addr, 80);
+	  if (err == ERR_OK) {
+		  tcp_pcb = tcp_listen(tcp_pcb);
+		  tcp_accept(tcp_pcb, tcp_accept_callback);
+	  } else {
+		  memp_free(MEMP_TCP_PCB, tcp_pcb);
+	  }
+
+  }
+  //tcp_arg(tcp_pcb, ?);
+
+  //tcp_sent(tcp_pcb, ?);
+  //tcp_recv(tcp_pcb, ?);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
 	  HAL_IWDG_Refresh(&hiwdg);
+	  MX_LWIP_Process(); // ethernetif_input(&gnetif) + sys_check_timeouts()
 
 	  if (uartHasNext()) {
 		  receiveAndSendChar();
@@ -153,7 +179,7 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -165,10 +191,17 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 64;
+  RCC_OscInitStruct.PLL.PLLN = 180;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -178,11 +211,11 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV4;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
@@ -218,11 +251,9 @@ static char* downloadFirmware(uint32_t* version) {
 		setCorrectUpdateFlag();
 		return jumpToUserApp();
 	} else if (xmodemStatus == 2) {
-		rollbackConfig();
 		NVIC_SystemReset(); //TODO
 		return "Error. Choose firmware for another bank.\n";
 	} else {
-		rollbackConfig();
 		NVIC_SystemReset(); //TODO
 		return "Error. Update aborted.\n";
 	};

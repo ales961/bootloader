@@ -21,7 +21,7 @@ uint32_t versionAddress2 = CONFIG_2_ADDRESS + 12;
 uint32_t notCorrectUpdateFlagAddress2 = CONFIG_2_ADDRESS + 16;
 
 static char versionBuf[128];
-char* getVersions() { //TODO
+char* getVersions() {
 	uint32_t ver1 = FlashReadWord(versionAddress1);
 	uint32_t ver2 = FlashReadWord(versionAddress2);
 	if (ver1 == EMPTY && ver2 == EMPTY) {
@@ -79,15 +79,6 @@ void setCorrectUpdateFlag() {
 		} else {
 			FlashWriteWord(notCorrectUpdateFlagAddress2, 0);
 		}
-}
-
-
-void rollbackConfig() {
-	uint32_t latestAppAddress = getLatestApplicationAddress();
-	if (latestAppAddress == APP_1_ADDRESS)
-		EraseSector(CONFIG_1_SECTOR);
-	else if (latestAppAddress == APP_2_ADDRESS)
-		EraseSector(CONFIG_2_SECTOR);
 }
 
 void validateApplications() {
