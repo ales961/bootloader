@@ -123,11 +123,11 @@ int main(void)
   uartEnableInterruption();
   menuInit(commands, 5);
 
-
-  struct tcp_pcb* tcp_pcb = tcp_new();
+  //echo_init();
+ /* struct tcp_pcb* tcp_pcb = tcp_new();
   if(tcp_pcb != NULL) {
 	  err_t err;
-	  IP4_ADDR(&ip_addr, 192, 168, 1, 193);
+	  IP4_ADDR(&ip_addr, 192, 168, 0, 193);
 	  err = tcp_bind(tcp_pcb, &ip_addr, 80);
 	  if (err == ERR_OK) {
 		  tcp_pcb = tcp_listen(tcp_pcb);
@@ -136,11 +136,7 @@ int main(void)
 		  memp_free(MEMP_TCP_PCB, tcp_pcb);
 	  }
 
-  }
-  //tcp_arg(tcp_pcb, ?);
-
-  //tcp_sent(tcp_pcb, ?);
-  //tcp_recv(tcp_pcb, ?);
+  }*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -184,14 +180,13 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 180;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLN = 216;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -219,6 +214,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
 }
 
 /* USER CODE BEGIN 4 */

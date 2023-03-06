@@ -28,7 +28,7 @@
 #include "netif/etharp.h"
 #include "lwip/ethip6.h"
 #include "ethernetif.h"
-#include "dp83848.h"
+#include "lan8742.h"
 #include <string.h>
 
 /* Within 'USER CODE' section, code will be kept by default at each generation */
@@ -115,8 +115,8 @@ int32_t ETH_PHY_IO_ReadReg(uint32_t DevAddr, uint32_t RegAddr, uint32_t *pRegVal
 int32_t ETH_PHY_IO_WriteReg(uint32_t DevAddr, uint32_t RegAddr, uint32_t RegVal);
 int32_t ETH_PHY_IO_GetTick(void);
 
-dp83848_Object_t DP83848;
-dp83848_IOCtx_t  DP83848_IOCtx = {ETH_PHY_IO_Init,
+lan8742_Object_t LAN8742;
+lan8742_IOCtx_t  LAN8742_IOCtx = {ETH_PHY_IO_Init,
                                   ETH_PHY_IO_DeInit,
                                   ETH_PHY_IO_WriteReg,
                                   ETH_PHY_IO_ReadReg,
@@ -157,7 +157,7 @@ static void low_level_init(struct netif *netif)
   MACAddr[4] = 0x00;
   MACAddr[5] = 0x00;
   heth.Init.MACAddr = &MACAddr[0];
-  heth.Init.MediaInterface = HAL_ETH_MII_MODE;
+  heth.Init.MediaInterface = HAL_ETH_RMII_MODE;
   heth.Init.TxDesc = DMATxDscrTab;
   heth.Init.RxDesc = DMARxDscrTab;
   heth.Init.RxBuffLen = 1536;
@@ -206,10 +206,10 @@ static void low_level_init(struct netif *netif)
 
 /* USER CODE END PHY_PRE_CONFIG */
   /* Set PHY IO functions */
-  DP83848_RegisterBusIO(&DP83848, &DP83848_IOCtx);
+  LAN8742_RegisterBusIO(&LAN8742, &LAN8742_IOCtx);
 
-  /* Initialize the DP83848 ETH PHY */
-  DP83848_Init(&DP83848);
+  /* Initialize the LAN8742 ETH PHY */
+  LAN8742_Init(&LAN8742);
 
   if (hal_eth_init_status == HAL_OK)
   {
@@ -453,53 +453,35 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
     /* Enable Peripheral clock */
     __HAL_RCC_ETH_CLK_ENABLE();
 
-    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ETH GPIO Configuration
-    PE2     ------> ETH_TXD3
     PC1     ------> ETH_MDC
-    PC2     ------> ETH_TXD2
-    PC3     ------> ETH_TX_CLK
-    PA0/WKUP     ------> ETH_CRS
-    PA1     ------> ETH_RX_CLK
+    PA1     ------> ETH_REF_CLK
     PA2     ------> ETH_MDIO
-    PA3     ------> ETH_COL
-    PA7     ------> ETH_RX_DV
+    PA7     ------> ETH_CRS_DV
     PC4     ------> ETH_RXD0
     PC5     ------> ETH_RXD1
-    PB0     ------> ETH_RXD2
-    PB1     ------> ETH_RXD3
     PB11     ------> ETH_TX_EN
     PB12     ------> ETH_TXD0
     PB13     ------> ETH_TXD1
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_2;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4
-                          |GPIO_PIN_5;
+    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_7;
+    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_11|GPIO_PIN_12
-                          |GPIO_PIN_13;
+    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -510,7 +492,11 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
     HAL_NVIC_SetPriority(ETH_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ETH_IRQn);
   /* USER CODE BEGIN ETH_MspInit 1 */
-
+    /*Reset KSZ8081*/
+    HAL_GPIO_WritePin(ETH_RST_GPIO_Port, ETH_RST_Pin, GPIO_PIN_RESET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(ETH_RST_GPIO_Port, ETH_RST_Pin, GPIO_PIN_SET);
+    HAL_Delay(1);
   /* USER CODE END ETH_MspInit 1 */
   }
 }
@@ -526,33 +512,21 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
     __HAL_RCC_ETH_CLK_DISABLE();
 
     /**ETH GPIO Configuration
-    PE2     ------> ETH_TXD3
     PC1     ------> ETH_MDC
-    PC2     ------> ETH_TXD2
-    PC3     ------> ETH_TX_CLK
-    PA0/WKUP     ------> ETH_CRS
-    PA1     ------> ETH_RX_CLK
+    PA1     ------> ETH_REF_CLK
     PA2     ------> ETH_MDIO
-    PA3     ------> ETH_COL
-    PA7     ------> ETH_RX_DV
+    PA7     ------> ETH_CRS_DV
     PC4     ------> ETH_RXD0
     PC5     ------> ETH_RXD1
-    PB0     ------> ETH_RXD2
-    PB1     ------> ETH_RXD3
     PB11     ------> ETH_TX_EN
     PB12     ------> ETH_TXD0
     PB13     ------> ETH_TXD1
     */
-    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5);
 
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4
-                          |GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_7);
 
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_7);
-
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_11|GPIO_PIN_12
-                          |GPIO_PIN_13);
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(ETH_IRQn);
@@ -647,34 +621,34 @@ void ethernet_link_check_state(struct netif *netif)
   int32_t PHYLinkState = 0;
   uint32_t linkchanged = 0U, speed = 0U, duplex = 0U;
 
-  PHYLinkState = DP83848_GetLinkState(&DP83848);
+  PHYLinkState = LAN8742_GetLinkState(&LAN8742);
 
-  if(netif_is_link_up(netif) && (PHYLinkState <= DP83848_STATUS_LINK_DOWN))
+  if(netif_is_link_up(netif) && (PHYLinkState <= LAN8742_STATUS_LINK_DOWN))
   {
     HAL_ETH_Stop(&heth);
     netif_set_down(netif);
     netif_set_link_down(netif);
   }
-  else if(!netif_is_link_up(netif) && (PHYLinkState > DP83848_STATUS_LINK_DOWN))
+  else if(!netif_is_link_up(netif) && (PHYLinkState > LAN8742_STATUS_LINK_DOWN))
   {
     switch (PHYLinkState)
     {
-    case DP83848_STATUS_100MBITS_FULLDUPLEX:
+    case LAN8742_STATUS_100MBITS_FULLDUPLEX:
       duplex = ETH_FULLDUPLEX_MODE;
       speed = ETH_SPEED_100M;
       linkchanged = 1;
       break;
-    case DP83848_STATUS_100MBITS_HALFDUPLEX:
+    case LAN8742_STATUS_100MBITS_HALFDUPLEX:
       duplex = ETH_HALFDUPLEX_MODE;
       speed = ETH_SPEED_100M;
       linkchanged = 1;
       break;
-    case DP83848_STATUS_10MBITS_FULLDUPLEX:
+    case LAN8742_STATUS_10MBITS_FULLDUPLEX:
       duplex = ETH_FULLDUPLEX_MODE;
       speed = ETH_SPEED_10M;
       linkchanged = 1;
       break;
-    case DP83848_STATUS_10MBITS_HALFDUPLEX:
+    case LAN8742_STATUS_10MBITS_HALFDUPLEX:
       duplex = ETH_HALFDUPLEX_MODE;
       speed = ETH_SPEED_10M;
       linkchanged = 1;

@@ -25,7 +25,7 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Core/Src \
 Core/Startup \
-Drivers/BSP/Components/dp83848 \
+Drivers/BSP/Components/lan8742 \
 Drivers/STM32F4xx_HAL_Driver/Src \
 LWIP/App \
 LWIP/Target \
