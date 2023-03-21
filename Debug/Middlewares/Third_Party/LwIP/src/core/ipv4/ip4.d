@@ -26,12 +26,8 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h \
  ../Middlewares/Third_Party/LwIP/system/arch/cc.h \
@@ -50,7 +46,6 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/ip4.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ip4.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/ip6.h \
@@ -60,15 +55,14 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/icmp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/icmp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/igmp.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/raw_priv.h \
+ ../Middlewares/Third_Party/LwIP/src/include/lwip/raw.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/udp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/udp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/tcp_priv.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/tcp.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/tcpbase.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/tcp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/autoip.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/iana.h
+ ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/dhcp.h
 ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h:
 ../LWIP/Target/lwipopts.h:
 ../Core/Inc/main.h:
@@ -96,12 +90,8 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h:
 ../Middlewares/Third_Party/LwIP/system/arch/cc.h:
@@ -120,7 +110,6 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/ip4.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ip4.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/ip6.h:
@@ -130,12 +119,11 @@ Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.o: \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/icmp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/icmp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/igmp.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/priv/raw_priv.h:
+../Middlewares/Third_Party/LwIP/src/include/lwip/raw.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/udp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/udp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/tcp_priv.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/tcp.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/tcpbase.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/tcp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/autoip.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/prot/iana.h:
+../Middlewares/Third_Party/LwIP/src/include/lwip/prot/dhcp.h:

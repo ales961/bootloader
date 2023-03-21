@@ -23,12 +23,8 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h \
  ../LWIP/Target/lwipopts.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h \
@@ -39,7 +35,6 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/stats.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/timeouts.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/err.h \
@@ -52,14 +47,13 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/ip6_addr.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/def.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ethernet.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ieee.h \
  ../Middlewares/Third_Party/LwIP/src/include/netif/etharp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/etharp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/ip4.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ip4.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/etharp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/ethip6.h \
- ../LWIP/Target/ethernetif.h ../Drivers/BSP/Components/lan8742/lan8742.h
+ ../LWIP/Target/ethernetif.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -85,12 +79,8 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h:
 ../LWIP/Target/lwipopts.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h:
@@ -101,7 +91,6 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/stats.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/timeouts.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/err.h:
@@ -114,7 +103,6 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/ip6_addr.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/def.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ethernet.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/prot/ieee.h:
 ../Middlewares/Third_Party/LwIP/src/include/netif/etharp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/etharp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/ip4.h:
@@ -122,4 +110,3 @@ LWIP/Target/ethernetif.o: ../LWIP/Target/ethernetif.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/prot/etharp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/ethip6.h:
 ../LWIP/Target/ethernetif.h:
-../Drivers/BSP/Components/lan8742/lan8742.h:

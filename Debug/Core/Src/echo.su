@@ -1,8 +1,8 @@
 ../Core/Src/echo.c:78:1:echo_init	16	static
-../Core/Src/echo.c:104:1:echo_accept	32	static
-../Core/Src/echo.c:137:1:echo_recv	40	static
-../Core/Src/echo.c:221:1:echo_error	24	static
-../Core/Src/echo.c:235:1:echo_poll	24	static
-../Core/Src/echo.c:269:1:echo_sent	32	static
-../Core/Src/echo.c:296:1:echo_send	32	static
-../Core/Src/echo.c:345:1:echo_close	16	static
+../Core/Src/echo.c:105:1:echo_accept	32	static
+../Core/Src/echo.c:138:1:echo_recv	40	static
+../Core/Src/echo.c:222:1:echo_error	24	static
+../Core/Src/echo.c:236:1:echo_poll	24	static
+../Core/Src/echo.c:270:1:echo_sent	32	static
+../Core/Src/echo.c:297:1:echo_send	32	static
+../Core/Src/echo.c:346:1:echo_close	16	static

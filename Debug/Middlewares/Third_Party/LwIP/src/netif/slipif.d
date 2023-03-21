@@ -27,12 +27,8 @@ Middlewares/Third_Party/LwIP/src/netif/slipif.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h \
  ../Middlewares/Third_Party/LwIP/system/arch/cc.h \
@@ -50,7 +46,6 @@ Middlewares/Third_Party/LwIP/src/netif/slipif.o: \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h \
- ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/snmp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/sys.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/sio.h
@@ -82,12 +77,8 @@ Middlewares/Third_Party/LwIP/src/netif/slipif.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_iwdg.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h:
 ../Middlewares/Third_Party/LwIP/system/arch/cc.h:
@@ -105,7 +96,6 @@ Middlewares/Third_Party/LwIP/src/netif/slipif.o: \
 ../Middlewares/Third_Party/LwIP/src/include/lwip/memp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_std.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/priv/memp_priv.h:
-../Middlewares/Third_Party/LwIP/src/include/lwip/priv/mem_priv.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/snmp.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/sys.h:
 ../Middlewares/Third_Party/LwIP/src/include/lwip/sio.h:

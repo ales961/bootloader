@@ -1,7 +1,0 @@
-../Core/Src/command.c:16:11:commandCreate	40	static
-../Core/Src/command.c:27:14:commandExecute	24	static
-../Core/Src/command.c:52:16:parseInt	24	static
-../Core/Src/command.c:61:16:parseOnOffStatus	16	static
-../Core/Src/command.c:72:6:commandSetAction	16	static
-../Core/Src/command.c:78:14:commandGetName	16	static
-../Core/Src/command.c:84:15:commandGetAction	16	static

@@ -1,0 +1,8 @@
+../Core/Src/lwip_tcp.c:32:6:lwip_tcp_init	16	static
+../Core/Src/lwip_tcp.c:51:7:accept_callback	32	static
+../Core/Src/lwip_tcp.c:79:7:recv_callback	40	static
+../Core/Src/lwip_tcp.c:142:6:error_callback	24	static
+../Core/Src/lwip_tcp.c:153:7:poll_callback	24	static
+../Core/Src/lwip_tcp.c:178:7:sent_callback	32	static
+../Core/Src/lwip_tcp.c:199:6:send	32	static
+../Core/Src/lwip_tcp.c:232:6:conn_close	16	static

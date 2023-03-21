@@ -1,6 +1,0 @@
-../Core/Src/xmodem.c:29:9:xmodemReceive	16	static
-../Core/Src/xmodem.c:88:17:xmodemCalcCrc	24	static
-../Core/Src/xmodem.c:115:22:xmodem_handle_packet	160	static
-../Core/Src/xmodem.c:169:22:xmodem_error_handler	24	static
-../Core/Src/xmodem.c:191:6:addRemainingDataToCurrentBuf	24	static
-../Core/Src/xmodem.c:207:6:cutBuf	16	static

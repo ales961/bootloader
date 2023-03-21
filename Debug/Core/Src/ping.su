@@ -1,0 +1,7 @@
+../Core/Src/ping.c:107:1:ping_prepare_echo	24	static
+../Core/Src/ping.c:231:1:ping_recv	40	static
+../Core/Src/ping.c:258:1:ping_send	32	static
+../Core/Src/ping.c:285:1:ping_timeout	24	static
+../Core/Src/ping.c:298:1:ping_raw_init	16	static
+../Core/Src/ping.c:312:1:ping_send_now	16	static
+../Core/Src/ping.c:322:1:ping_init	8	static

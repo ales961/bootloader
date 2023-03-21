@@ -5,8 +5,6 @@
 
 #include "boot_config.h"
 #include "flash.h"
-#include "tim.h"
-#include "usart.h"
 
 uint32_t seqAddress1 = CONFIG_1_ADDRESS;
 uint32_t firstBootFlagAddress1 = CONFIG_1_ADDRESS + 4;
@@ -94,6 +92,14 @@ void validateApplications() {
 		EraseSector(CONFIG_2_SECTOR);
 }
 
+
+void EraseNecessarySectors(uint32_t address, uint8_t* sector) {
+	if (address == sectorAddresses[*sector]) {
+		EraseSector(*sector);
+		(*sector)++;
+	}
+}
+
 void jumpToApp() {
 	  uint32_t address = getLatestApplicationAddress();
 	  if (address == APP_1_ADDRESS)
@@ -104,9 +110,6 @@ void jumpToApp() {
 	  void(*app_reset_handler)();
 
 	  //shut down any tasks remaining
-	  HAL_TIM_Base_Stop_IT(&htim6);
-	  uartDisableInterruption();
-
 	  __HAL_RCC_GPIOC_CLK_DISABLE();
 	  __HAL_RCC_GPIOD_CLK_DISABLE();
 	  __HAL_RCC_GPIOB_CLK_DISABLE();
@@ -139,11 +142,4 @@ void jumpToApp() {
 	  //jump to reset handler of the user app.
 	  __enable_irq();
 	  app_reset_handler();
-}
-
-void EraseNecessarySectors(uint32_t address, uint8_t* sector) {
-	if (address == sectorAddresses[*sector]) {
-		EraseSector(*sector);
-		(*sector)++;
-	}
 }

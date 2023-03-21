@@ -1,5 +1,5 @@
-../Core/Src/lwip_callbacks.c:5:7:tcp_recv_callback	32	static
-../Core/Src/lwip_callbacks.c:32:6:tcp_error_callback	16	static
-../Core/Src/lwip_callbacks.c:36:7:tcp_poll_callback	16	static
-../Core/Src/lwip_callbacks.c:40:7:tcp_sent_callback	24	static
-../Core/Src/lwip_callbacks.c:45:7:tcp_accept_callback	24	static
+../Core/Src/lwip_callbacks.c:3:7:tcp_recv_callback	32	static
+../Core/Src/lwip_callbacks.c:29:6:tcp_error_callback	24	static
+../Core/Src/lwip_callbacks.c:34:7:tcp_poll_callback	16	static
+../Core/Src/lwip_callbacks.c:38:7:tcp_sent_callback	24	static
+../Core/Src/lwip_callbacks.c:43:7:tcp_accept_callback	32	static

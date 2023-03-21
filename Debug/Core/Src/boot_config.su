@@ -1,8 +1,8 @@
-../Core/Src/boot_config.c:24:7:getVersions	16	static
-../Core/Src/boot_config.c:41:10:getLatestApplicationAddress	16	static
-../Core/Src/boot_config.c:51:6:updateConfig	24	static
-../Core/Src/boot_config.c:66:6:setAppVersion	24	static
-../Core/Src/boot_config.c:75:6:setCorrectUpdateFlag	16	static
-../Core/Src/boot_config.c:84:6:validateApplications	32	static
-../Core/Src/boot_config.c:97:6:jumpToApp	32	static,ignoring_inline_asm
-../Core/Src/boot_config.c:144:6:EraseNecessarySectors	16	static
+../Core/Src/boot_config.c:22:7:getVersions	16	static
+../Core/Src/boot_config.c:39:10:getLatestApplicationAddress	16	static
+../Core/Src/boot_config.c:49:6:updateConfig	24	static
+../Core/Src/boot_config.c:64:6:setAppVersion	24	static
+../Core/Src/boot_config.c:73:6:setCorrectUpdateFlag	16	static
+../Core/Src/boot_config.c:82:6:validateApplications	32	static
+../Core/Src/boot_config.c:96:6:EraseNecessarySectors	16	static
+../Core/Src/boot_config.c:103:6:jumpToApp	32	static,ignoring_inline_asm

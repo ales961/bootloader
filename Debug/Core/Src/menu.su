@@ -1,5 +1,0 @@
-../Core/Src/menu.c:15:6:menuInit	24	static
-../Core/Src/menu.c:25:14:menuExecuteCommand	40	static
-../Core/Src/menu.c:43:16:isSpaceChar	16	static
-../Core/Src/menu.c:47:13:strTrim	24	static
-../Core/Src/menu.c:58:16:commandSepNameFromArg	24	static
