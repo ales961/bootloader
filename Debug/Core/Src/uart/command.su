@@ -1,0 +1,7 @@
+../Core/Src/uart/command.c:15:11:commandCreate	40	static
+../Core/Src/uart/command.c:26:14:commandExecute	24	static
+../Core/Src/uart/command.c:51:16:parseInt	24	static
+../Core/Src/uart/command.c:60:16:parseOnOffStatus	16	static
+../Core/Src/uart/command.c:71:6:commandSetAction	16	static
+../Core/Src/uart/command.c:77:14:commandGetName	16	static
+../Core/Src/uart/command.c:83:15:commandGetAction	16	static

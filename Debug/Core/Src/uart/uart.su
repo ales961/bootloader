@@ -1,0 +1,7 @@
+../Core/Src/uart/uart.c:7:9:uartHardwareTransmitPolling	16	static
+../Core/Src/uart/uart.c:11:6:uartHardwareTransmitInterrupt	16	static
+../Core/Src/uart/uart.c:17:6:HAL_UART_TxCpltCallback	16	static
+../Core/Src/uart/uart.c:24:9:uartHardwareReceivePolling	16	static
+../Core/Src/uart/uart.c:28:6:uartHardwareReceiveInterrupt	8	static
+../Core/Src/uart/uart.c:33:6:HAL_UART_RxCpltCallback	16	static
+../Core/Src/uart/uart.c:39:6:uartHardwareDisableInterrupts	8	static

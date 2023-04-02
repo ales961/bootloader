@@ -1,0 +1,14 @@
+../Core/Src/uart/buffer.c:20:10:bufferCreate	24	static
+../Core/Src/uart/buffer.c:28:9:bufferPush	16	static
+../Core/Src/uart/buffer.c:42:10:bufferPushValues	32	static
+../Core/Src/uart/buffer.c:51:9:bufferPop	24	static
+../Core/Src/uart/buffer.c:66:9:bufferPeek	16	static
+../Core/Src/uart/buffer.c:70:6:bufferClear	16	static
+../Core/Src/uart/buffer.c:78:9:bufferHasValues	16	static
+../Core/Src/uart/buffer.c:82:10:bufferPopValues	40	static
+../Core/Src/uart/buffer.c:93:10:bufferGetSize	16	static
+../Core/Src/uart/buffer.c:97:10:bufferGetFreeSize	16	static
+../Core/Src/uart/buffer.c:101:10:bufferPeekValues	16	static
+../Core/Src/uart/buffer.c:106:9:bufferToAnother	24	static
+../Core/Src/uart/buffer.c:117:13:disableInt	16	static,ignoring_inline_asm
+../Core/Src/uart/buffer.c:122:13:enableInt	16	static,ignoring_inline_asm

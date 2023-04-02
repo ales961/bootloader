@@ -1,0 +1,3 @@
+../Core/Src/eth/tcp_protocol.c:24:7:handle_packet	32	static
+../Core/Src/eth/tcp_protocol.c:129:6:addRemainingDataToCurrentBuf	24	static
+../Core/Src/eth/tcp_protocol.c:145:6:cutBuf	16	static

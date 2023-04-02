@@ -1,9 +1,12 @@
+#include <eth/tcp_protocol.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tcp_protocol.h"
 #include "flash.h"
 #include "hex_parser.h"
 #include "boot_config.h"
+#include "main.h"
+#include "usart.h"
+#include "eth/lwip_tcp.h"
 
 /* Global variables. */
 uint8_t flashBuf[1024];
@@ -11,6 +14,7 @@ uint16_t flashBufSize = 0;
 uint8_t remainingDataBuf[128];
 uint16_t remainingDataSize = 0;
 transfer_status tr_status = CODE;
+uint8_t err_count = 0;
 
 
 /* Local functions. */
@@ -18,6 +22,7 @@ void addRemainingDataToCurrentBuf(uint8_t* receivedData, uint16_t length);
 void cutBuf();
 
 char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
+	WRITE_REG(IWDG->KR, 0x0000AAAAU);
 	if (p == NULL || p->len <= 0 || p->payload == NULL) return "handle error";
 	uint8_t header;
 	uint8_t* data = NULL;
@@ -55,12 +60,20 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 				\nupdate <version>: download firmware and jump to it\
 				\nversion: get current version of application\
 				\nhelp: get information about commands\
-				\nclear: erase configs\n";
+				\nclear: erase configs\
+				\nuart: change interface to uart";
 			case CLR:
 				if(!data) free(data);
 				EraseSector(CONFIG_1_SECTOR);
 				EraseSector(CONFIG_2_SECTOR);
 				return "Configs erased\n";
+			case INTERFACE:
+				if(!data) free(data);
+				switchCurrentInterfaceFlag();
+				conn_abort();
+				netifSetDown();
+				uartEnableInterruption();
+				return "";
 			default:
 				if(!data) free(data);
 				return "No such command\n";
@@ -73,7 +86,10 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 			return "Done";
 		}
 	    /* Add remaining data from previous packet to current data */
-		if (length <= 0) return "data empty error";
+		if (length <= 0) {
+			tr_status = CODE;
+			return "data empty error";
+		}
 		addRemainingDataToCurrentBuf(data, length);
 
 	    /* Remove unfinished line from flashBuf and place it to remaining data */
@@ -83,16 +99,22 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 	    uint8_t flashHexCode = flashHex(flashBuf, flashBufSize);
 	    uint8_t answer;
 	    if (flashHexCode == 0) { //Flash write error   TODO
+	    	err_count++;
+	    	if (err_count > 3) {
+	    		err_count = 0;
+	    		free(data);
+	    		tr_status = CODE;
+	    		return "Flash write error";
+	    	}
 	    	answer = NACK;
 	    	tcp_write(tpcb, &answer, 1, 1);
 	    	tcp_output(tpcb);
 	    	return NULL;
 	    }
 	    if (flashHexCode == 2) { //Wrong bank firmware error
-	    	answer = NACK;
-	    	tcp_write(tpcb, &answer, 1, 1);
-	    	tcp_output(tpcb);
-	    	return NULL;
+	    	free(data);
+	    	tr_status = CODE;
+	    	return "wrong bank firmware";
 	    }
 
 	    answer = ACK;

@@ -1,5 +1,5 @@
-#include "lwip_tcp.h"
-#include "tcp_protocol.h"
+#include <eth/lwip_tcp.h>
+#include <eth/tcp_protocol.h>
 #include "string.h"
 
 #if LWIP_TCP
@@ -242,4 +242,19 @@ void conn_close(struct tcp_pcb *tpcb, struct conn_state *es) {
   tcp_close(tpcb);
 }
 
+void conn_abort() {
+	tcp_abort(tpcb);
+}
+
+void netifSetUp() {
+	struct netif *netif;
+	netif = netif_find("st0");
+	netif_set_up(netif);
+}
+
+void netifSetDown() {
+	struct netif *netif;
+	netif = netif_find("st0");
+	netif_set_down(netif);
+}
 #endif /* LWIP_TCP */
