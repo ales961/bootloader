@@ -121,11 +121,17 @@ int main(void)
   MX_LWIP_Init();
   MX_TIM6_Init();
   MX_USART6_UART_Init();
-  //MX_IWDG_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   netifSetDown();
   menuInit(commands, 6);
   uartEnableInterruption();
+
+  if (!isBootRequired()) {
+	  jumpToUserApp();
+  } else {
+	  EraseSector(CONFIG_BOOT_SECTOR);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */

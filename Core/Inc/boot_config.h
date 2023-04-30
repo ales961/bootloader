@@ -3,6 +3,8 @@
 
 #include "flash.h"
 
+#define CONFIG_BOOT_SECTOR FLASH_SECTOR_13
+#define CONFIG_BOOT_ADDRESS SECTOR_13_ADDRESS
 #define CONFIG_1_SECTOR FLASH_SECTOR_14
 #define CONFIG_2_SECTOR FLASH_SECTOR_15
 #define CONFIG_1_ADDRESS SECTOR_14_ADDRESS
@@ -22,5 +24,6 @@ void validateApplications();
 void setAppVersion(uint32_t version);
 void setCorrectUpdateFlag();
 void EraseNecessarySectors(uint32_t address, uint8_t* sector);
+uint8_t isBootRequired();
 
 #endif /* INC_BOOT_CONFIG_H_ */

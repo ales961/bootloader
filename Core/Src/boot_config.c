@@ -6,6 +6,8 @@
 #include "boot_config.h"
 #include "flash.h"
 
+uint32_t bootFlagAddress = CONFIG_BOOT_ADDRESS;
+
 uint32_t seqAddress1 = CONFIG_1_ADDRESS;
 uint32_t firstBootFlagAddress1 = CONFIG_1_ADDRESS + 4;
 uint32_t notValidFlagAddress1 = CONFIG_1_ADDRESS + 8;
@@ -17,6 +19,11 @@ uint32_t firstBootFlagAddress2 = CONFIG_2_ADDRESS + 4;
 uint32_t notValidFlagAddress2 = CONFIG_2_ADDRESS + 8;
 uint32_t versionAddress2 = CONFIG_2_ADDRESS + 12;
 uint32_t notCorrectUpdateFlagAddress2 = CONFIG_2_ADDRESS + 16;
+
+uint8_t isBootRequired() {
+	if (FlashReadWord(bootFlagAddress) == 0) return 1;
+	else return 0;
+}
 
 static char versionBuf[128];
 char* getVersions() {
