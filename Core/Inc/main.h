@@ -59,7 +59,9 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
-void switchCurrentInterfaceFlag();
+void blockInput();
+void unblockInput();
+uint8_t isInputBlocked();
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

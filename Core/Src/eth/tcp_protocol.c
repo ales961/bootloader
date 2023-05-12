@@ -22,6 +22,8 @@ void addRemainingDataToCurrentBuf(uint8_t* receivedData, uint16_t length);
 void cutBuf();
 
 char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
+	if (isInputBlocked()) return "busy";
+	blockInput();
 	WRITE_REG(IWDG->KR, 0x0000AAAAU);
 	if (p == NULL || p->len <= 0 || p->payload == NULL) return "handle error";
 	uint8_t header;
@@ -38,8 +40,10 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 				if(!data) free(data);
 				validateApplications();
 				if (getLatestApplicationAddress() == 0) {
+					unblockInput();
 					return "No valid application in flash\n";
 				} else {
+					unblockInput();
 					jumpToApp();
 					return "Done";
 				}
@@ -49,33 +53,30 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 				setAppVersion((uint32_t) data[0]);//TODO
 				free(data);
 				tr_status = DATA;
+				unblockInput();
 				return "Send hex file: \n";
 			case VER:
 				if(!data) free(data);
 				validateApplications();
+				unblockInput();
 				return getVersions();
 			case HELP:
 				if(!data) free(data);
+				unblockInput();
 				return "jump: jump to application\
 				\nupdate <version>: download firmware and jump to it\
 				\nversion: get current version of application\
 				\nhelp: get information about commands\
-				\nclear: erase configs\
-				\nuart: change interface to uart";
+				\nclear: erase configs";
 			case CLR:
 				if(!data) free(data);
 				EraseSector(CONFIG_1_SECTOR);
 				EraseSector(CONFIG_2_SECTOR);
+				unblockInput();
 				return "Configs erased\n";
-			case INTERFACE:
-				if(!data) free(data);
-				switchCurrentInterfaceFlag();
-				conn_abort();
-				netifSetDown();
-				uartEnableInterruption();
-				return "";
 			default:
 				if(!data) free(data);
+				unblockInput();
 				return "No such command\n";
 		}
 	} else if (tr_status == DATA) {
@@ -83,11 +84,13 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 			tr_status = CODE;
 			setCorrectUpdateFlag();
 			jumpToApp();
+			unblockInput();
 			return "Done";
 		}
 	    /* Add remaining data from previous packet to current data */
 		if (length <= 0) {
 			tr_status = CODE;
+			unblockInput();
 			return "data empty error";
 		}
 		addRemainingDataToCurrentBuf(data, length);
@@ -104,16 +107,19 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 	    		err_count = 0;
 	    		free(data);
 	    		tr_status = CODE;
+	    		unblockInput();
 	    		return "Flash write error";
 	    	}
 	    	answer = NACK;
 	    	tcp_write(tpcb, &answer, 1, 1);
 	    	tcp_output(tpcb);
+	    	unblockInput();
 	    	return NULL;
 	    }
 	    if (flashHexCode == 2) { //Wrong bank firmware error
 	    	free(data);
 	    	tr_status = CODE;
+	    	unblockInput();
 	    	return "wrong bank firmware";
 	    }
 
@@ -121,8 +127,10 @@ char* handle_packet(struct tcp_pcb* tpcb, struct pbuf* p) {
 		tcp_write(tpcb, &answer, 1, 1);
 		tcp_output(tpcb); //TODO
 		free(data);
+		unblockInput();
 		return NULL;
 	}
+	unblockInput();
 	return "unknown error";
 }
 

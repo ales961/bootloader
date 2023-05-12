@@ -61,8 +61,8 @@ uint32_t flashBufPtr = 0;
 static uint8_t uartBuf[128];
 static uint8_t uartBufLast = 0;
 static uint8_t hasLine = 0;
-static Command* commands[6];
-uint8_t currentInterface = 0;
+static Command* commands[5];
+static uint8_t blockInputFlag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,8 +76,9 @@ static char* getHelpInfo();
 static char* downloadFirmware(uint32_t* version);
 static char* getAppVersions();
 static char* eraseConfigs();
-void changeInterface();
-void switchCurrentInterfaceFlag();
+void blockInput();
+void unblockInput();
+uint8_t isInputBlocked();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -97,7 +98,6 @@ int main(void)
 	  commands[2] = commandCreate("version", (CommandAction) getAppVersions, NONE);//TODO
 	  commands[3] = commandCreate("help", (CommandAction) getHelpInfo, NONE);
 	  commands[4] = commandCreate("clear", (CommandAction) eraseConfigs, NONE);
-	  commands[5] = commandCreate("ethernet", (CommandAction) changeInterface, NONE);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -123,8 +123,8 @@ int main(void)
   MX_USART6_UART_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-  netifSetDown();
-  menuInit(commands, 6);
+  lwip_tcp_init();
+  menuInit(commands, 5);
   uartEnableInterruption();
 
   if (!isBootRequired()) {
@@ -142,20 +142,19 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (currentInterface == 0) {
-		  if (uartHasNext()) {
-		  		  receiveAndSendChar();
-		  }
-
-		  if (hasLine) {
-		  		 uartBuf[uartBufLast] = '\0';
-		  		 const char* commandResult = menuExecuteCommand((char*) uartBuf);
-		  		 sendMessage("\n");
-		  		 sendCommandResult(commandResult);
-		  }
-	  } else {
-		  MX_LWIP_Process();
+	  if (uartHasNext()) {
+		  	receiveAndSendChar();
 	  }
+
+	  if (hasLine) {
+		  	uartBuf[uartBufLast] = '\0';
+		  	const char* commandResult = menuExecuteCommand((char*) uartBuf);
+		  	sendMessage("\n");
+		  	sendCommandResult(commandResult);
+	  }
+
+	  MX_LWIP_Process();
+
   }
   /* USER CODE END 3 */
 }
@@ -216,10 +215,14 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 static char* jumpToUserApp() {
+	if (isInputBlocked()) return "";
+	blockInput();
 	validateApplications();
 	if (getLatestApplicationAddress() == 0) {
+		unblockInput();
 		return "No valid application in flash\n";
 	} else {
+		unblockInput();
 		jumpToApp();
 		return "Done";
 	}
@@ -230,11 +233,12 @@ static char* getHelpInfo() {
 update <version>: download firmware and jump to it\n\
 version: get current version of application\n\
 help: get information about commands\n\
-clear: erase configs\n\
-ethernet: change interface to ethernet\n";
+clear: erase configs\n";
 }
 
 static char* downloadFirmware(uint32_t* version) {
+	if (isInputBlocked()) return "";
+	blockInput();
 	validateApplications();
 	updateConfig();
 	setAppVersion(*version);
@@ -243,32 +247,40 @@ static char* downloadFirmware(uint32_t* version) {
 	uint8_t xmodemStatus = xmodemReceive();
 	if (xmodemStatus == 1) {
 		setCorrectUpdateFlag();
+		unblockInput();
 		return jumpToUserApp();
 	} else if (xmodemStatus == 2) {
-		NVIC_SystemReset(); //TODO
+		unblockInput();
+		HAL_FLASH_Unlock();
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)0x08104000, 0);
+		HAL_FLASH_Lock();
+		NVIC_SystemReset();
 		return "Error. Choose firmware for another bank.\n";
 	} else {
-		NVIC_SystemReset(); //TODO
+		unblockInput();
+		HAL_FLASH_Unlock();
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)0x08104000, 0);
+		HAL_FLASH_Lock();
+		NVIC_SystemReset();
 		return "Error. Update aborted.\n";
 	};
 }
 
 static char* getAppVersions() {
+	if (isInputBlocked()) return "";
+	blockInput();
 	validateApplications();
+	unblockInput();
 	return getVersions();
 }
 
 static char* eraseConfigs() {
+	if (isInputBlocked()) return "";
+	blockInput();
 	EraseSector(CONFIG_1_SECTOR);
 	EraseSector(CONFIG_2_SECTOR);
+	unblockInput();
 	return "Configs erased\n";
-}
-
-void changeInterface() {
-	switchCurrentInterfaceFlag();
-	uartDisableInterruption();
-	netifSetUp();
-	lwip_tcp_init();
 }
 
 static void receiveAndSendChar() {
@@ -292,12 +304,16 @@ static void sendMessage(const char* msg) {
     uartTransmit((uint8_t *) msg, strlen(msg));
 }
 
-void switchCurrentInterfaceFlag() {
-	if (currentInterface == 0) {
-		currentInterface = 1;
-	} else {
-		currentInterface = 0;
-	}
+void blockInput() {
+	blockInputFlag = 1;
+}
+
+void unblockInput() {
+	blockInputFlag = 0;
+}
+
+uint8_t isInputBlocked() {
+	return blockInputFlag;
 }
 /* USER CODE END 4 */
 
