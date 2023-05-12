@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -41,8 +41,7 @@ extern TIM_HandleTypeDef htim6;
 void MX_TIM6_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void resetRxDone();
-uint8_t isRxDone();
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

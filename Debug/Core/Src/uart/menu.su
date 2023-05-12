@@ -1,0 +1,5 @@
+../Core/Src/uart/menu.c:14:6:menuInit	24	static
+../Core/Src/uart/menu.c:24:14:menuExecuteCommand	40	static
+../Core/Src/uart/menu.c:42:16:isSpaceChar	16	static
+../Core/Src/uart/menu.c:46:13:strTrim	24	static
+../Core/Src/uart/menu.c:57:16:commandSepNameFromArg	24	static

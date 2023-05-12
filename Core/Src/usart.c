@@ -23,11 +23,11 @@
 /* USER CODE BEGIN 0 */
 #include <string.h>
 
-#include "buffer.h"
-#include "uart.h"
+#include <uart/buffer.h>
+#include <uart/uart.h>
 
-#define TX_BUFFER_SIZE 64
-#define RX_BUFFER_SIZE 65535
+#define TX_BUFFER_SIZE 256
+#define RX_BUFFER_SIZE 256
 
 static Buffer *txBuffer;
 static Buffer *rxBuffer;
@@ -145,6 +145,16 @@ uint16_t uartTransmit(const uint8_t * const msg, const uint16_t msgSize) {
     return transmitted;
 }
 
+uint8_t uartTransmitChar(const uint8_t msg) {
+    if (msg == NULL)
+        return 0;
+    const uint8_t transmitted = bufferPush(txBuffer, msg);
+    if (interruptionsEnabled) {
+        hardwareTransmitIT();
+    }
+    return transmitted;
+}
+
 uint8_t uartHasNext() {
     return bufferHasValues(rxBuffer);
 }
@@ -224,8 +234,6 @@ extern void uartReceiveIntCallback(uint8_t data) {
         bufferPush(rxBuffer, data);
     }
     if (!isRxStarted()) rxStarted = 1;
-    TIM6->CNT = 0;
-
     if (interruptionsEnabled)
         hardwareReceiveIT();
 }
@@ -244,8 +252,8 @@ uint8_t rxBufferPop() {
 	return bufferPop(rxBuffer);
 }
 
-uint16_t rxBufToFlashBuf(uint8_t* flashBuf) {
-	return bufferPopValues(rxBuffer, flashBuf, bufferGetSize(rxBuffer));
+uint16_t rxBufToProgBuf(uint8_t* buf) {
+	return bufferPopValues(rxBuffer, buf, bufferGetSize(rxBuffer));
 }
 
 uint8_t isRxStarted() {

@@ -44,6 +44,7 @@ void MX_USART6_UART_Init(void);
 
 uint16_t uartReceive(uint8_t *buffer, uint16_t size);
 uint16_t uartTransmit(const uint8_t *msg, uint16_t msgSize);
+uint8_t uartTransmitChar(const uint8_t msg);
 uint8_t uartHasNext();
 void uartEnableInterruption();
 void uartDisableInterruption();
@@ -52,7 +53,7 @@ void uartPooling();
 uint8_t uartIsInterruptionEnabled();
 void sendRxBuffer(); //debug
 uint16_t rxBufferGetSize();
-uint16_t rxBufToFlashBuf(uint8_t* flashBuf);
+uint16_t rxBufToProgBuf(uint8_t* buf);
 uint8_t isRxStarted();
 uint8_t rxBufferPop();
 void debug();

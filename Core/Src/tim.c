@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -18,10 +18,11 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <uart/xmodem.h>
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-uint8_t rxDone = 0;
+#include "usart.h"
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim6;
@@ -40,9 +41,9 @@ void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 15999;
+  htim6.Init.Prescaler = 44999;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 1000;
+  htim6.Init.Period = 5000;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -100,17 +101,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void resetRxDone() {
-	rxDone = 0;
-}
-
-uint8_t isRxDone() {
-	return rxDone;
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if( htim->Instance == TIM6 ) {
-		rxDone = 1;
+		uartTransmitChar(X_C);
 	}
 }
 /* USER CODE END 1 */
